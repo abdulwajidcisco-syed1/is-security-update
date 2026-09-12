@@ -9,7 +9,8 @@ Date: 2026-09-12. Scope: initial offline foundation only.
 - Same-input resume: **passed**, verified artifact hashes and reused results.
 - Staged source/document scan: no credential-pattern matches before initial commit.
 - Git push using Windows Credential Manager: **passed**; repository verified private.
-- GitHub Actions: **not run**; token lacks workflow-write permission. Template is inactive in `ci/offline-checks.yml.example`.
+- GitHub Actions: **passed** on Ubuntu/Python 3.13: [run 34706412678](https://github.com/abdulwajidcisco-syed1/is-security-update/actions/runs/34706412678), commit `429330c`. Tests and dry-run/resume completed successfully.
+- Private Project: verified with all 15 implementation issues and current statuses.
 
 ## Covered behavior
 
