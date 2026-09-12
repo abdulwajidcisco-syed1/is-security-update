@@ -1,0 +1,17 @@
+schema_version: 1
+# Synthetic sources for offline development only. No vendor feed is verified yet.
+sources:
+  - id: fixture-vendor
+    url: https://example.org/vendor/feed.xml
+    adapter: fixture
+    enabled: true
+    topics: [ciphertrust, imperva-dam, thales-adjacent]
+    priority: 3
+    verified_public: false
+  - id: fixture-news
+    url: https://example.org/security/feed.xml
+    adapter: fixture
+    enabled: true
+    topics: [database-security]
+    priority: 1
+    verified_public: false
