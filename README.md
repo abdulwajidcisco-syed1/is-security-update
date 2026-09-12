@@ -16,6 +16,8 @@ or publish an episode. Sample data is visibly synthetic, not vendor news.
 - [Implementation action plan](ACTION_PLAN.md)
 - [Decisions and launch blockers](DECISIONS.md)
 - [Implementation status](IMPLEMENTATION_STATUS.md)
+- [GitHub issue backlog](BACKLOG.md)
+- [Validation report](TEST_REPORT.md)
 - [Source register](SOURCE_REGISTER.md)
 - [Operations](OPERATIONS.md)
 
