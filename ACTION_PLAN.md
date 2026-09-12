@@ -6,7 +6,7 @@
 | Version / status | 1.0 / Proposed execution plan |
 | Date | 2026-09-12 |
 | Inputs | [BRD.md](BRD.md) v0.2 and [SRS.md](SRS.md) v1.0 |
-| Current state | BRD, SRS, and action plan prepared; application code, feeds, accounts, and deployment not validated |
+| Current state | Private GitHub repository and initial offline foundation implemented; see IMPLEMENTATION_STATUS.md and BACKLOG.md for live task status |
 | Planning assumption | One implementer, with operator participation for account setup and acceptance |
 | Effort estimate | 18–25 engineering working days, plus a seven-calendar-day scheduled pilot and external account/policy lead times |
 
@@ -18,7 +18,7 @@ The estimates below are planning ranges, not commitments. They assume the refere
 
 ## 2. Phased work breakdown
 
-All tasks are initially **Not started**. “Implementer” means the person building the pipeline; “operator” means the friend receiving it. Dependencies refer to task IDs, not dates.
+The table below is the original work breakdown. Current states are maintained in [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) and [BACKLOG.md](BACKLOG.md). “Implementer” means the person building the pipeline; “operator” means the friend receiving it. Dependencies refer to task IDs, not dates.
 
 | ID | Phase / action | Owner | Depends on | Deliverable and completion evidence | Effort |
 |---|---|---|---|---|---|
