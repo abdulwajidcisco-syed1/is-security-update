@@ -16,6 +16,7 @@ or publish an episode. Sample data is visibly synthetic, not vendor news.
 - [Implementation action plan](ACTION_PLAN.md)
 - [Decisions and launch blockers](DECISIONS.md)
 - [Implementation status](IMPLEMENTATION_STATUS.md)
+- [Private implementation Project](https://github.com/users/abdulwajidcisco-syed1/projects/1)
 - [GitHub issue backlog](BACKLOG.md)
 - [Validation report](TEST_REPORT.md)
 - [Source register](SOURCE_REGISTER.md)
@@ -23,7 +24,7 @@ or publish an episode. Sample data is visibly synthetic, not vendor news.
 
 ## Run locally
 
-Python 3.11+ is required (the CI template targets 3.13).
+Python 3.11+ is required (CI uses 3.13).
 
 ```sh
 python -m pip install -r pipeline/requirements.txt
@@ -44,11 +45,8 @@ development default; operator timezone and daily ready-time remain undecided.
 ## Privacy and publishing
 
 The source repository is to remain **private**, per the owner's instruction.
-Publication is disabled in configuration and unavailable in code. The CI template uses
-synthetic fixtures and has no deployment permissions or daily schedule. It is saved
-at `ci/offline-checks.yml.example` because the current GitHub token cannot write
-workflow files. Activate it as `.github/workflows/ci.yml` after Workflows write
-permission is granted.
+Publication is disabled in configuration and unavailable in code. CI runs from `.github/workflows/ci.yml` using synthetic fixtures with no deployment
+permissions or daily publishing schedule.
 
 A private repository changes the original hosting assumptions: private Release
 assets require authentication, and GitHub Pages from private repositories requires
