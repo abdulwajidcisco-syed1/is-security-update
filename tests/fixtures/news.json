@@ -1,0 +1,45 @@
+{
+  "synthetic": true,
+  "source_outcomes": {"fixture-vendor": "succeeded", "fixture-news": "succeeded"},
+  "items": [
+    {
+      "source_id": "fixture-vendor",
+      "url": "https://example.org/ciphertrust/update?utm_source=test",
+      "title": "Synthetic CipherTrust Manager release example",
+      "content": "Synthetic fixture only: CipherTrust Manager maintenance documentation has changed. This is not real vendor news.",
+      "published_at": "2026-09-11T08:00:00Z",
+      "retrieved_at": "2026-09-12T08:00:00Z"
+    },
+    {
+      "source_id": "fixture-vendor",
+      "url": "https://example.org/ciphertrust/update#details",
+      "title": "Duplicate synthetic release example",
+      "content": "Synthetic fixture only: CipherTrust Manager maintenance documentation has changed. This is not real vendor news.",
+      "published_at": "2026-09-11T08:00:00Z",
+      "retrieved_at": "2026-09-12T08:00:00Z"
+    },
+    {
+      "source_id": "fixture-news",
+      "url": "https://example.org/database/briefing",
+      "title": "Synthetic database security briefing",
+      "content": "Synthetic fixture only: database security practitioners discuss monitoring coverage. No real incident is asserted.",
+      "published_at": "2026-09-12T07:00:00Z",
+      "retrieved_at": "2026-09-12T08:00:00Z"
+    },
+    {
+      "source_id": "fixture-news",
+      "url": "https://example.org/outside-window",
+      "title": "Synthetic older PostgreSQL example",
+      "content": "Synthetic PostgreSQL item outside the collection window.",
+      "published_at": "2026-09-11T07:59:59Z",
+      "retrieved_at": "2026-09-12T08:00:00Z"
+    },
+    {
+      "source_id": "fixture-news",
+      "url": "https://example.org/missing-date",
+      "title": "Synthetic undated database security item",
+      "content": "Synthetic database security item with missing publication metadata.",
+      "retrieved_at": "2026-09-12T08:00:00Z"
+    }
+  ]
+}

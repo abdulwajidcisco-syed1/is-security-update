@@ -1,0 +1,20 @@
+schema_version: 1
+show_id: is-security-update
+# UTC is an explicit development default; operator ready-time is unresolved.
+timezone: UTC
+max_items: 15
+minimum_score: 1
+publishing_enabled: false
+topics:
+  - id: ciphertrust
+    aliases: [CipherTrust, CipherTrust Manager]
+    weight: 3
+  - id: imperva-dam
+    aliases: [Imperva DAM, Data Activity Monitoring]
+    weight: 3
+  - id: thales-adjacent
+    aliases: [Luna HSM, Thales data protection]
+    weight: 1
+  - id: database-security
+    aliases: [database security, PostgreSQL, MySQL, database breach]
+    weight: 2
