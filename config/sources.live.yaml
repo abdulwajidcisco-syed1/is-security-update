@@ -1,0 +1,23 @@
+schema_version: 1
+sources:
+  - id: cisa-alerts
+    url: https://www.cisa.gov/cybersecurity-advisories/all.xml
+    adapter: rss
+    enabled: true
+    topics: [database-security]
+    priority: 3
+    verified_public: true
+  - id: nvd-cve
+    url: https://services.nvd.nist.gov/rest/json/cves/2.0
+    adapter: nvd
+    enabled: true
+    topics: [ciphertrust, imperva-dam, thales-adjacent, database-security]
+    priority: 3
+    verified_public: true
+  - id: hacker-news
+    url: https://hn.algolia.com/api/v1/search_by_date
+    adapter: hn
+    enabled: true
+    topics: [database-security]
+    priority: 1
+    verified_public: true

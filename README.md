@@ -3,7 +3,7 @@
 Independent daily database-security briefing pipeline for CipherTrust Manager,
 Imperva DAM, adjacent Thales products, and general database security.
 
-**Status: initial offline implementation.** This version validates configuration,
+**Status: live review-preview implementation.** This version validates configuration,
 filters a fixed 24-hour window, groups duplicate reports, ranks relevant stories,
 preserves evidence metadata, and writes resumable/checksummed local run artifacts.
 It does not yet collect live sources, write an AI script, generate audio/video,
@@ -54,3 +54,7 @@ an eligible plan. Public or private content delivery must be decided separately;
 see [DECISIONS.md](DECISIONS.md). Never embed authentication tokens into media URLs.
 
 No client data, secrets, OAuth files, or raw private material should be added.
+
+## Live review preview
+
+Run the manual **Live briefing preview** GitHub Actions workflow. It collects the trailing 24 hours, filters relevant stories, generates a cited and safety-checked briefing with Groq, renders a static article, and uploads seven-day review artifacts. It has read-only repository permissions and no publication step.
