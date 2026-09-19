@@ -28,8 +28,6 @@ def main():
     settings = load_settings(args.show, args.sources)
     records, outcomes = collect_all(settings, start, end)
     selected, quarantine = select_items(records, settings, end)
-    if not selected and quarantine:
-        raise RuntimeError("All potentially relevant items were rejected")
     episode = generate_episode(selected, args.model, edition)
     directory = args.output / edition; directory.mkdir(parents=True, exist_ok=True)
     paths = {"selected.json": selected, "quarantine.json": quarantine, "episode.json": episode}
@@ -42,7 +40,7 @@ def main():
     if args.media:
         render_media(episode, directory, voice=args.voice)
     build_site(directory / "site", directory / "episode.json", edition, media_source=directory if args.media else None)
-    manifest = {"schema_version": 1, "mode": "live_preview", "publication": "disabled", "edition": edition, "window_start": start.isoformat(), "window_end": end.isoformat(), "source_outcomes": outcomes, "raw_count": len(records), "selected_count": len(selected), "quarantined_count": len(quarantine), "episode_status": episode["status"], "artifacts": {}}
+    manifest = {"schema_version": 1, "mode": "live_preview", "publication": "disabled", "edition": edition, "window_start": start.isoformat(), "window_end": end.isoformat(), "source_outcomes": outcomes, "raw_count": len(records), "selected_count": len(selected), "quarantined_count": len(quarantine), "selection_outcome": "selected" if selected else ("metadata_rejected" if quarantine else "no_qualifying_items"), "episode_status": episode["status"], "artifacts": {}}
     for path in directory.rglob("*"):
         if path.is_file() and path.name != "manifest.json": manifest["artifacts"][str(path.relative_to(directory)).replace("\\", "/")] = sha256(path.read_bytes()).hexdigest()
     write_json(directory / "manifest.json", manifest)
