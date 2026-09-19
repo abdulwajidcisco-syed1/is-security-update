@@ -53,6 +53,19 @@ class LiveModuleTests(unittest.TestCase):
             self.assertIn("2026-09-19", (root / "site/index.html").read_text(encoding="utf-8"))
 
 
+    def test_site_packages_media_and_uses_youtube_when_available(self):
+        episode = {"title": "Update", "summary": "Summary", "segments": [], "outro": "Bye", "status": "approved"}
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder); episode_path = root / "episode.json"
+            episode_path.write_text(json.dumps(episode), encoding="utf-8")
+            for name in ("audio.mp3", "video.mp4", "captions.srt"):
+                (root / name).write_bytes(b"artifact")
+            build_site(root / "site", episode_path, "2026-09-19", media_source=root, youtube_id="video123")
+            page = (root / "site/episodes/2026-09-19/index.html").read_text(encoding="utf-8")
+            self.assertIn("youtube-nocookie.com/embed/video123", page)
+            self.assertIn("../../media/2026-09-19/audio.mp3", page)
+            self.assertTrue((root / "site/media/2026-09-19/video.mp4").is_file())
+            self.assertTrue((root / "site/.nojekyll").is_file())
     def test_editorial_schema_requires_evidence(self):
         from pipeline.editorial import schema
         segment = schema()["schema"]["properties"]["segments"]["items"]
