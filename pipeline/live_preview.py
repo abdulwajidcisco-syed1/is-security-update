@@ -18,7 +18,7 @@ def main():
     parser.add_argument("--output", type=Path, default=Path("preview"))
     parser.add_argument("--show", type=Path, default=Path("config/show.yaml"))
     parser.add_argument("--sources", type=Path, default=Path("config/sources.live.yaml"))
-    parser.add_argument("--model", default="llama-3.3-70b-versatile")
+    parser.add_argument("--model", default="openai/gpt-oss-120b")
     args = parser.parse_args()
     end = timestamp(args.window_end) if args.window_end else datetime.now(timezone.utc).replace(microsecond=0)
     start, edition = end - timedelta(hours=24), end.date().isoformat()
