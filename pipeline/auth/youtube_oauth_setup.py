@@ -70,7 +70,9 @@ def main():
     Callback.expected_state = state
     redirect_uri = f"http://127.0.0.1:{server.server_port}/"
     query = urlencode({"client_id": args.client_id, "redirect_uri": redirect_uri, "response_type": "code", "scope": SCOPES, "access_type": "offline", "prompt": "consent", "state": state, "code_challenge": challenge, "code_challenge_method": "S256"})
-    webbrowser.open(AUTH_URL + "?" + query)
+    authorization_url = AUTH_URL + "?" + query
+    print("Open this authorization URL if the browser does not appear:", authorization_url, flush=True)
+    webbrowser.open(authorization_url)
     server.timeout = 300
     server.handle_request()
     server.server_close()
