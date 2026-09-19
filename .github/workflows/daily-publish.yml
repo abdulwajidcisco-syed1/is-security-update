@@ -126,7 +126,7 @@ jobs:
         run: |
           edition="${{ needs.publish.outputs.edition }}"
           base="${{ steps.deployment.outputs.page_url }}"
-          gh release view "episode-$edition" --json url >/dev/null
+          gh release view "episode-$edition" --repo "$GITHUB_REPOSITORY" --json url >/dev/null
           curl --fail --location --retry 6 --retry-delay 10 "$base" >/dev/null
           curl --fail --location --retry 6 --retry-delay 10 "${base}episodes/${edition}/" >/dev/null
           echo "All destinations verified for $edition" >> "$GITHUB_STEP_SUMMARY"

@@ -28,6 +28,7 @@ class DailyWorkflowTests(unittest.TestCase):
             "curl --fail",
         ):
             self.assertIn(required, text)
+        self.assertIn('--repo "$GITHUB_REPOSITORY"', text)
         self.assertIn("concurrency:", text)
         self.assertIn("cancel-in-progress: false", text)
 
