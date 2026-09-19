@@ -17,7 +17,7 @@ def benchmark_episode():
     )
     segments = []
     for index in range(12):
-        narration = " ".join(sentences * 2)
+        narration = " ".join((*sentences, *sentences[:-1]))
         segments.append({"heading": f"Synthetic benchmark section {index + 1}", "narration": narration, "claim_ids": [f"benchmark-{index + 1}"], "source_urls": ["https://example.org/synthetic-benchmark"], "is_case_study": False})
     episode = {"title": "Synthetic active-day media benchmark", "summary": "A non-publishing capacity test for narration, captions, and video encoding.", "segments": segments, "outro": "The synthetic media benchmark is complete.", "status": "approved"}
     text = " ".join([episode["title"], episode["summary"], *(segment["narration"] for segment in segments), episode["outro"]])
