@@ -10,7 +10,7 @@ from unittest.mock import patch
 from pipeline.collect import CollectionError, collect_feed, collect_all
 from pipeline.config import Source, load_settings
 from pipeline.editorial import EditorialError, evidence_packet, generate_episode, safety_findings, validate_episode
-from pipeline.site import build_site, render
+from pipeline.site import build_site, render, sync_existing_site
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -69,6 +69,27 @@ class LiveModuleTests(unittest.TestCase):
             self.assertTrue((root / "site/media/2026-09-19/video.mp4").is_file())
             self.assertTrue((root / "site/.nojekyll").is_file())
 
+    def test_site_archive_sync_is_bounded_to_same_base(self):
+        index = b'<a href="episodes/2026-09-18/">old</a>'
+        page = b'<html>archived episode</html>'
+        assets = {"audio.mp3": b"audio", "video.mp4": b"video", "captions.srt": b"captions"}
+
+        def fetch(request, timeout=60):
+            url = request.full_url
+            if url.endswith("is-security-update/"):
+                return BytesIO(index)
+            if url.endswith("episodes/2026-09-18/"):
+                return BytesIO(page)
+            return BytesIO(assets[url.rsplit("/", 1)[-1]])
+
+        with tempfile.TemporaryDirectory() as folder, patch("pipeline.site.urlopen", side_effect=fetch):
+            root = Path(folder)
+            dates = sync_existing_site("https://example.org/is-security-update/", root, keep=1)
+            self.assertEqual(dates, ["2026-09-18"])
+            self.assertEqual((root / "episodes/2026-09-18/index.html").read_bytes(), page)
+            self.assertEqual((root / "media/2026-09-18/audio.mp3").read_bytes(), b"audio")
+        with self.assertRaises(ValueError):
+            sync_existing_site("http://example.org/", Path("unused"))
     def test_generation_retries_schema_rejection(self):
         stories = [{"story_id": "s1", "title": "Database update", "content": "A database update", "topics": ["database-security"], "evidence": [{"source_id": "vendor", "url": "https://example.org/update", "published_at": "2026-09-19T00:00:00+00:00", "excerpt": "A database update is available"}]}]
         _, claims, urls = evidence_packet(stories)
