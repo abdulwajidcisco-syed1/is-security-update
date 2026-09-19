@@ -1,5 +1,7 @@
 from datetime import datetime, timezone
 import json
+from io import BytesIO
+from urllib.error import HTTPError
 from pathlib import Path
 import tempfile
 import unittest
@@ -7,7 +9,7 @@ from unittest.mock import patch
 
 from pipeline.collect import CollectionError, collect_feed, collect_all
 from pipeline.config import Source, load_settings
-from pipeline.editorial import EditorialError, evidence_packet, safety_findings, validate_episode
+from pipeline.editorial import EditorialError, evidence_packet, generate_episode, safety_findings, validate_episode
 from pipeline.site import build_site, render
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -66,6 +68,18 @@ class LiveModuleTests(unittest.TestCase):
             self.assertIn("../../media/2026-09-19/audio.mp3", page)
             self.assertTrue((root / "site/media/2026-09-19/video.mp4").is_file())
             self.assertTrue((root / "site/.nojekyll").is_file())
+
+    def test_generation_retries_schema_rejection(self):
+        stories = [{"story_id": "s1", "title": "Database update", "content": "A database update", "topics": ["database-security"], "evidence": [{"source_id": "vendor", "url": "https://example.org/update", "published_at": "2026-09-19T00:00:00+00:00", "excerpt": "A database update is available"}]}]
+        _, claims, urls = evidence_packet(stories)
+        episode = {"title": "Update", "summary": "Summary", "segments": [{"heading": "Advisory", "narration": "A database update is available.", "claim_ids": list(claims), "source_urls": list(urls), "is_case_study": False}], "outro": "Goodbye"}
+        error_body = BytesIO(json.dumps({"error": {"message": "Generated JSON does not match the expected schema."}}).encode())
+        rejection = HTTPError("https://api.groq.com", 400, "Bad Request", {}, error_body)
+        success = BytesIO(json.dumps({"choices": [{"message": {"content": json.dumps(episode)}}]}).encode())
+        with patch("pipeline.editorial.urlopen", side_effect=[rejection, success]) as request, patch("pipeline.editorial.time.sleep"):
+            result = generate_episode(stories, "test-model", "2026-09-19", api_key="test-key")
+        self.assertEqual(result["status"], "approved")
+        self.assertEqual(request.call_count, 2)
     def test_editorial_schema_requires_evidence(self):
         from pipeline.editorial import schema
         segment = schema()["schema"]["properties"]["segments"]["items"]
