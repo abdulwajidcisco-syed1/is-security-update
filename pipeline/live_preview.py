@@ -8,6 +8,7 @@ from pathlib import Path
 from .collect import collect_all
 from .config import load_settings
 from .editorial import generate_episode
+from .media import render_media
 from .run import write_json
 from .selection import select_items, timestamp
 from .site import build_site
@@ -19,6 +20,8 @@ def main():
     parser.add_argument("--show", type=Path, default=Path("config/show.yaml"))
     parser.add_argument("--sources", type=Path, default=Path("config/sources.live.yaml"))
     parser.add_argument("--model", default="openai/gpt-oss-20b")
+    parser.add_argument("--media", action="store_true", help="Generate Kokoro audio, captions, and FFmpeg video")
+    parser.add_argument("--voice", default="af_heart")
     args = parser.parse_args()
     end = timestamp(args.window_end) if args.window_end else datetime.now(timezone.utc).replace(microsecond=0)
     start, edition = end - timedelta(hours=24), end.date().isoformat()
@@ -36,6 +39,8 @@ def main():
         transcript += [f'## {segment["heading"]}', "", segment["narration"], "", "Sources:"] + [f'- {url}' for url in segment["source_urls"]] + [""]
     transcript += [episode["outro"], ""]
     (directory / "transcript.md").write_text("\n".join(transcript), encoding="utf-8")
+    if args.media:
+        render_media(episode, directory, voice=args.voice)
     build_site(directory / "site", directory / "episode.json", edition)
     manifest = {"schema_version": 1, "mode": "live_preview", "publication": "disabled", "edition": edition, "window_start": start.isoformat(), "window_end": end.isoformat(), "source_outcomes": outcomes, "raw_count": len(records), "selected_count": len(selected), "quarantined_count": len(quarantine), "episode_status": episode["status"], "artifacts": {}}
     for path in directory.rglob("*"):
