@@ -13,10 +13,12 @@ Updated 2026-09-19. This remains an implementation build; production publishing 
 | P07 | Substantially implemented | Groq structured output, claim/evidence mapping, citation/identifier validation, prompt-injection isolation and deterministic safety gates are implemented. Live Groq structured generation passed in GitHub Actions. |
 | P08 | Substantially implemented | Kokoro narration, actual-chunk caption timing, MP3/WAV output and FFmpeg H.264/AAC video rendering passed on a GitHub CPU runner. Human pronunciation and sampled caption review remain. |
 | P09 | Substantially implemented | Checksum-aware GitHub Release publisher creates a draft, uploads seven validated assets, reconciles matching remote SHA-256 digests, blocks ambiguous collisions, and publishes only after completion. Cross-run artifact recovery and injected interruption tests remain. |
-| P10 | Started | YouTube OAuth helper and read-only channel/playlist ownership preflight passed. Upload and reconciliation remain. |
+| P10 | Substantially implemented | OAuth preflight, exact-edition reconciliation, private resumable upload, synthetic-media disclosure, idempotent playlist insertion, video-ID persistence and immediate verification passed. Post-processing playback and token-revocation exercises remain. |
 | P11-P15 | Not started | Pages deployment, daily orchestration, integrated acceptance, pilot and handover remain. |
 
-Current validation: 27 local tests pass. Live source smoke test succeeded for all three configured endpoints, collecting 581 records and selecting seven candidates. YouTube OAuth preflight passed in GitHub Actions run 35445880562. The live collection, Groq generation, safety/evidence validation, article rendering and review-artifact upload passed in run 35446699138. The workflow remains review-only and cannot publish.
+Current validation: 34 local tests pass. Live source smoke test succeeded for all three configured endpoints, collecting 581 records and selecting seven candidates. YouTube OAuth preflight passed in GitHub Actions run 35445880562. The live collection, Groq generation, safety/evidence validation, article rendering and review-artifact upload passed in run 35446699138. The workflow remains review-only and cannot publish.
 Media acceptance increment: GitHub Actions run 35447459904 rendered a 106.15-second briefing with nine caption cues. WAV, MP3, SRT and MP4 artifacts were non-empty and checksummed; the review bundle is retained for seven days.
 
 GitHub Release acceptance increment: run 35449085064 published private tag episode-2026-09-19 with seven assets. GitHub-reported SHA-256 digests were verified during upload; the release is neither draft nor prerelease.
+
+YouTube acceptance increment: run 35452631380 uploaded private video FCr6LP-Y3Tc and inserted it into the configured playlist. Immediate verification returned private visibility and processing status; playback-after-processing remains to be checked.
