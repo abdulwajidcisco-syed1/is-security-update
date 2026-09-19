@@ -1,10 +1,10 @@
 # Implementation backlog
 
-GitHub issues map to P01ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã¢â‚¬Å“P15 in ACTION_PLAN.md. All 15 issues are linked to the [IS Security Update Project](https://github.com/users/abdulwajidcisco-syed1/projects/1).
+GitHub issues map to P01ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œP15 in ACTION_PLAN.md. All 15 issues are linked to the [IS Security Update Project](https://github.com/users/abdulwajidcisco-syed1/projects/1).
 
 | Task | Issue | Current state |
 |---|---|---|
-| P01 | [Confirm operator decisions and implementation baseline](https://github.com/abdulwajidcisco-syed1/is-security-update/issues/1) | In progress; see DECISIONS.md. |
+| P01 | [Confirm operator decisions and implementation baseline](https://github.com/abdulwajidcisco-syed1/is-security-update/issues/1) | Done; V1 operator, audience, schedule, visibility, retention, alert, and no-news decisions recorded. |
 | P02 | [Inspect reference pipeline and document reuse](https://github.com/abdulwajidcisco-syed1/is-security-update/issues/2) | Waived: reference code was not supplied; independent implementation and non-reuse recorded. |
 | P03 | [Verify public sources and free-tier feasibility](https://github.com/abdulwajidcisco-syed1/is-security-update/issues/3) | Done with explicit vendor-feed limitation and NVD fallback. |
 | P04 | [Set up independent GitHub and service accounts](https://github.com/abdulwajidcisco-syed1/is-security-update/issues/4) | Done: public repo/Pages, Project, Groq, YouTube OAuth, playlist and CI verified. |
