@@ -56,3 +56,10 @@ Run the manual **Live briefing preview** GitHub Actions workflow. It collects th
 ## YouTube destination preflight
 
 Run the manual **YouTube OAuth preflight** workflow to refresh OAuth, identify the authorized channel, and verify that it owns the configured playlist. The workflow is read-only and does not upload or publish media.
+
+## Operations and acceptance
+
+- [Operations guide](OPERATIONS.md)
+- [Integrated acceptance record](ACCEPTANCE.md)
+- [Seven-day pilot log](PILOT_LOG.csv)
+- [Implementation status](IMPLEMENTATION_STATUS.md)

@@ -1,0 +1,132 @@
+name: Daily briefing publication
+
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type RUN to publish or resume today's UTC edition
+        required: true
+      voice:
+        description: Kokoro voice identifier
+        required: true
+        default: af_heart
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: daily-publication
+  cancel-in-progress: false
+
+env:
+  PYTHON_VERSION: '3.12'
+  DEFAULT_VOICE: af_heart
+
+jobs:
+  publish:
+    if: github.event_name == 'workflow_dispatch' || vars.PILOT_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    outputs:
+      edition: ${{ steps.edition.outputs.value }}
+    steps:
+      - name: Authorize trigger
+        if: github.event_name == 'workflow_dispatch'
+        run: test "${{ inputs.confirmation }}" = RUN
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: pipeline/requirements-media.txt
+      - name: Install bounded media dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg espeak-ng
+          python -m pip install -r pipeline/requirements-media.txt
+      - name: Resolve fixed UTC edition
+        id: edition
+        shell: bash
+        run: |
+          edition="$(date -u +%F)"
+          echo "value=$edition" >> "$GITHUB_OUTPUT"
+          echo "EDITION=$edition" >> "$GITHUB_ENV"
+          echo "WINDOW_END=${edition}T03:00:00Z" >> "$GITHUB_ENV"
+      - name: Restore published checkpoint or generate once
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        shell: bash
+        run: |
+          directory="preview/$EDITION"
+          tag="episode-$EDITION"
+          mkdir -p "$directory"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release download "$tag" --dir "$directory" --clobber
+            python -c "from pipeline.publish_github import local_assets; local_assets('$directory')"
+            echo "Restored checksummed edition $EDITION from release" >> "$GITHUB_STEP_SUMMARY"
+          else
+            python -m pipeline.live_preview --window-end "$WINDOW_END" --media --voice "${{ inputs.voice || env.DEFAULT_VOICE }}"
+          fi
+      - name: Publish or reconcile GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python -m pipeline.publish_github "preview/$EDITION"
+      - name: Upload or reconcile private YouTube video
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          YOUTUBE_PLAYLIST_ID: ${{ secrets.YOUTUBE_PLAYLIST_ID }}
+        run: python -m pipeline.publish_youtube "preview/$EDITION" --privacy private
+      - name: Build website from published checkpoint
+        run: python -m pipeline.site "preview/$EDITION" --existing-site-url "https://${{ github.repository_owner }}.github.io/${GITHUB_REPOSITORY#*/}/" --retained-editions 30
+      - name: Stage Pages artifact
+        shell: bash
+        run: |
+          mkdir _site
+          cp -a "preview/$EDITION/site"/. _site/
+          test -s _site/index.html
+          test -s "_site/episodes/$EDITION/index.html"
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - name: Preserve resumable publication record
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: publication-record-${{ steps.edition.outputs.value }}
+          path: preview/
+          retention-days: 30
+          if-no-files-found: warn
+
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || vars.PILOT_ENABLED == 'true'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: publish
+    steps:
+      - name: Deploy GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Verify all destination URLs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          edition="${{ needs.publish.outputs.edition }}"
+          base="${{ steps.deployment.outputs.page_url }}"
+          gh release view "episode-$edition" --json url >/dev/null
+          curl --fail --location --retry 6 --retry-delay 10 "$base" >/dev/null
+          curl --fail --location --retry 6 --retry-delay 10 "${base}episodes/${edition}/" >/dev/null
+          echo "All destinations verified for $edition" >> "$GITHUB_STEP_SUMMARY"
