@@ -48,7 +48,7 @@ def validate_episode(episode, claims, urls):
     return episode
 
 def schema():
-    segment = {"type": "object", "additionalProperties": False, "required": ["heading", "narration", "claim_ids", "source_urls", "is_case_study"], "properties": {"heading": {"type": "string"}, "narration": {"type": "string"}, "claim_ids": {"type": "array", "items": {"type": "string"}}, "source_urls": {"type": "array", "items": {"type": "string"}}, "is_case_study": {"type": "boolean"}}}
+    segment = {"type": "object", "additionalProperties": False, "required": ["heading", "narration", "claim_ids", "source_urls", "is_case_study"], "properties": {"heading": {"type": "string"}, "narration": {"type": "string"}, "claim_ids": {"type": "array", "minItems": 1, "items": {"type": "string"}}, "source_urls": {"type": "array", "minItems": 1, "items": {"type": "string"}}, "is_case_study": {"type": "boolean"}}}
     return {"name": "security_briefing", "strict": True, "schema": {"type": "object", "additionalProperties": False, "required": ["title", "summary", "segments", "outro"], "properties": {"title": {"type": "string"}, "summary": {"type": "string"}, "segments": {"type": "array", "items": segment}, "outro": {"type": "string"}}}}
 
 def generate_episode(stories, model, edition, api_key=None):

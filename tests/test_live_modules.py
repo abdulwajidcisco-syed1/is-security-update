@@ -52,4 +52,11 @@ class LiveModuleTests(unittest.TestCase):
             self.assertTrue((root / "site/episodes/2026-09-19/index.html").is_file())
             self.assertIn("2026-09-19", (root / "site/index.html").read_text(encoding="utf-8"))
 
+
+    def test_editorial_schema_requires_evidence(self):
+        from pipeline.editorial import schema
+        segment = schema()["schema"]["properties"]["segments"]["items"]
+        self.assertEqual(segment["properties"]["claim_ids"]["minItems"], 1)
+        self.assertEqual(segment["properties"]["source_urls"]["minItems"], 1)
+
 if __name__ == "__main__": unittest.main()
