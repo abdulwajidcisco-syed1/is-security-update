@@ -12,7 +12,7 @@ Updated 2026-09-20. User instructions override conflicting draft BRD assumptions
 | Independent ownership | Retained | No credentials, runtime or quota dependence on the original author's deployment. |
 | Reference code D09 | Pending | No `shahbaz-daily-updates` code was supplied or available in workspace. Initial foundation is new code; reuse review remains open. |
 | Source validation D04 | Pending | Sample endpoints are synthetic and cannot establish real vendor coverage. |
-| Schedule D03 | Provisional implementation default | Daily 03:00 UTC workflow is implemented. Scheduled execution remains gated by `PILOT_ENABLED` pending operator acceptance. |
+| Schedule D03 | Provisional implementation default | Daily 03:00 UTC workflow is implemented and the seven-day pilot is active with `PILOT_ENABLED=true`. |
 | Sharing / hosting D06 | Partially resolved | Repository and Pages site are public by explicit authorization; YouTube videos remain private. Final audience/review policy remains open. |
 | Persona D02 | Pending | Confirm operator's role and topic emphasis. |
 | Retention D05 | Provisional | Pages retains 30 editions; workflow records retain 30 days; releases and private YouTube videos have no automatic deletion. Operator approval remains. |
@@ -28,7 +28,7 @@ repository also does not by itself make a Pages site private. See
 Private repository Release assets are not anonymous public media hosting. Do not
 put a token in an audio/video link to work around authentication.
 
-Before P09â€“P12 publication, choose an authorized delivery architecture compatible
+Before P09Ã¢â‚¬â€œP12 publication, choose an authorized delivery architecture compatible
 with private source code, intended audience, and the $0 target. No paid upgrade or
 public hosting resource is assumed authorized by the private-repository request.
 
