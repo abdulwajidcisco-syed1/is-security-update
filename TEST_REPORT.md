@@ -27,3 +27,9 @@ accuracy, content-safety gates, source prompt-injection resistance, narration,
 caption synchronization, distributed recovery, public/private delivery behavior,
 service cost, scheduled reliability, YouTube or Pages deployment. Those require
 later acceptance tests from SRS.md.
+## 2026-09-20 integrated orchestration increment
+
+- Local suite: **40 tests passed**, including bounded source rate-limit retry, archive preservation, publication reconciliation, and workflow contract checks.
+- GitHub-hosted CI: run 35466649276 passed on commit `3c13bb0`.
+- Integrated recovery: run 35466879235 restored the existing checksummed edition, reconciled the GitHub Release and private YouTube video/playlist without duplicates, preserved the Pages archive, redeployed, and verified all destination URLs.
+- Schedule: daily 03:00 UTC trigger is installed; `PILOT_ENABLED` controls scheduled execution.

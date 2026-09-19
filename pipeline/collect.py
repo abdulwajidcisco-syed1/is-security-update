@@ -3,6 +3,8 @@ from datetime import datetime, timezone
 import ipaddress
 import json
 import socket
+import time
+from urllib.error import HTTPError
 from urllib.parse import urlencode, urlsplit
 from urllib.request import Request, urlopen
 
@@ -26,16 +28,26 @@ def fetch(url: str, timeout: int = 20) -> bytes:
         addresses = {row[4][0] for row in socket.getaddrinfo(host, 443, type=socket.SOCK_STREAM)}
         if not addresses or any(not ipaddress.ip_address(address).is_global for address in addresses):
             raise CollectionError("Host resolution is unsafe")
-        request = Request(url, headers={"User-Agent": USER_AGENT, "Accept": "application/json, application/rss+xml, application/atom+xml"})
-        with urlopen(request, timeout=timeout) as response:
-            if (urlsplit(response.geturl()).hostname or "").lower() not in ALLOWED_HOSTS:
-                raise CollectionError("Redirect left allowlist")
-            data = response.read(5_000_001)
-            if len(data) > 5_000_000:
-                raise CollectionError("Response too large")
-            return data
     except (OSError, ValueError) as exc:
-        raise CollectionError("Source request failed") from exc
+        raise CollectionError("Source resolution failed") from exc
+    request = Request(url, headers={"User-Agent": USER_AGENT, "Accept": "application/json, application/rss+xml, application/atom+xml"})
+    for attempt in range(3):
+        try:
+            with urlopen(request, timeout=timeout) as response:
+                if (urlsplit(response.geturl()).hostname or "").lower() not in ALLOWED_HOSTS:
+                    raise CollectionError("Redirect left allowlist")
+                data = response.read(5_000_001)
+                if len(data) > 5_000_000:
+                    raise CollectionError("Response too large")
+                return data
+        except HTTPError as exc:
+            if exc.code not in {429, 500, 502, 503, 504} or attempt == 2:
+                raise CollectionError("Source request failed") from exc
+        except OSError as exc:
+            if attempt == 2:
+                raise CollectionError("Source request failed") from exc
+        time.sleep(attempt + 1)
+    raise CollectionError("Source request failed")
 
 def iso(value) -> str:
     if isinstance(value, str):
