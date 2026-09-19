@@ -12,7 +12,7 @@ Updated 2026-09-20. Evidence links should identify immutable commits, Actions ru
 | AT06 | Passed | Unsupported citations and technical identifiers are rejected; source text is isolated as untrusted evidence; unsafe output receives one corrective retry and a second rejection fails closed. |
 | AT07 | Partial | CPU media render, decode, and timing checks pass; human pronunciation review remains. |
 | AT08 | Passed | Release hashes and public Pages article/media/archive verified. |
-| AT09 | Partial | Private upload, playlist, disclosure, and immediate state verified; post-processing playback and token-revocation exercise remain. |
+| AT09 | Partial | Private upload, disclosure, exact-edition reconciliation and playlist reuse pass; run 35466879235 records `processing_status: succeeded`. Token-revocation and reauthorization exercise remains. |
 | AT10 | Passed | Run 35466879235 restored the existing release checkpoint, reconciled the same release/video/playlist without duplication, redeployed Pages, and verified all destinations after a prior verifier failure. Workflow concurrency prevents overlap. |
 | AT11 | Partial | Timeouts, bounded source 429/5xx/network retries, partial coverage, and bounded Groq schema retry are tested. Quota exhaustion and operator notification receipt remain pilot exercises. |
 | AT12 | In progress | Secret scan and independent GitHub-hosted execution pass; retention preview and assisted recovery remain. |
@@ -29,5 +29,5 @@ Updated 2026-09-20. Evidence links should identify immutable commits, Actions ru
 
 - Operator: pending
 - Business author: pending
-- Implementer: pending final AT01Ã¢â‚¬â€œAT12 review
+- Implementer: pending final AT01ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“AT12 review
 - Go-live recommendation: pending AT13
