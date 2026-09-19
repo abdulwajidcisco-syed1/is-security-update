@@ -4,12 +4,12 @@ Updated 2026-09-20. GitHub Release, private YouTube, and public GitHub Pages pub
 
 | Plan task | State | Evidence / next step |
 |---|---|---|
-| P01 | In progress | Repository visibility is public to support GitHub Pages. Operator schedule, audience, retention and quiet-day decisions remain open. |
+| P01 | Done | Operator account, audience, 03:00 UTC schedule, public Pages/Release visibility, private YouTube visibility, 30-edition retention, GitHub/Codex alerts, and short no-news policy are recorded as the V1 baseline. |
 | P02 | Waived | Reference pipeline code was not supplied. This is documented as a clean independent implementation with no reuse, inherited credentials, branding, quota, or runtime dependency. |
 | P03 | Done with accepted limitation | Live CISA, NVD and Hacker News sources pass. Official CipherTrust and Imperva DAM public pages were reviewed; no reliable timestamped vendor feed was found, so NVD fallback coverage and the explicit product-release gap are documented. |
 | P04 | Done | Public repository and Project created; repository visibility was changed with explicit approval to support Pages. YouTube OAuth refresh and destination ownership preflight passed for the configured private playlist. Groq generation, YouTube OAuth preflight, release publishing, and public GitHub Pages hosting pass. |
 | P05 | Done | Validated YAML configuration, data records, dry-run CLI, structured manifest and ignored secrets/tooling. |
-| P06 | Done | Live RSS, NVD and Hacker News adapters, bounded retrying fetches, fixed windows, timestamp validation, relevance ranking, partial/all-failure reporting, canonical URL and cross-source content deduplication with retained evidence pass AT01â€“AT02. Vendor feed limitations are recorded in P03. |
+| P06 | Done | Live RSS, NVD and Hacker News adapters, bounded retrying fetches, fixed windows, timestamp validation, relevance ranking, partial/all-failure reporting, canonical URL and cross-source content deduplication with retained evidence pass AT01Ã¢â‚¬â€œAT02. Vendor feed limitations are recorded in P03. |
 | P07 | Done | Groq structured output, claim/evidence mapping, citation/identifier validation, untrusted-source isolation, deterministic safety gates, one corrective retry, and fail-closed second rejection pass automated and live generation checks. Human editorial review continues in P13/P14. |
 | P08 | Substantially implemented | Kokoro narration, actual-chunk caption timing, MP3/WAV output and FFmpeg H.264/AAC video rendering passed on a GitHub CPU runner. Human pronunciation and sampled caption review remain. |
 | P09 | Done | Checksum-aware Release publication, remote digest reconciliation, checkpoint restoration, same-date reruns, concurrency, and recovery after a post-publication verifier failure passed without duplicate assets. |
