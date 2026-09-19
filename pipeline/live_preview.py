@@ -41,7 +41,7 @@ def main():
     (directory / "transcript.md").write_text("\n".join(transcript), encoding="utf-8")
     if args.media:
         render_media(episode, directory, voice=args.voice)
-    build_site(directory / "site", directory / "episode.json", edition)
+    build_site(directory / "site", directory / "episode.json", edition, media_source=directory if args.media else None)
     manifest = {"schema_version": 1, "mode": "live_preview", "publication": "disabled", "edition": edition, "window_start": start.isoformat(), "window_end": end.isoformat(), "source_outcomes": outcomes, "raw_count": len(records), "selected_count": len(selected), "quarantined_count": len(quarantine), "episode_status": episode["status"], "artifacts": {}}
     for path in directory.rglob("*"):
         if path.is_file() and path.name != "manifest.json": manifest["artifacts"][str(path.relative_to(directory)).replace("\\", "/")] = sha256(path.read_bytes()).hexdigest()
