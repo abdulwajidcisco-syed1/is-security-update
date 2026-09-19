@@ -33,3 +33,4 @@ later acceptance tests from SRS.md.
 - GitHub-hosted CI: run 35466649276 passed on commit `3c13bb0`.
 - Integrated recovery: run 35466879235 restored the existing checksummed edition, reconciled the GitHub Release and private YouTube video/playlist without duplicates, preserved the Pages archive, redeployed, and verified all destination URLs.
 - Schedule: daily 03:00 UTC trigger is installed; `PILOT_ENABLED` controls scheduled execution.
+- Editorial acceptance now verifies one corrective retry followed by fail-closed behavior; local suite: **41 tests passed**.
