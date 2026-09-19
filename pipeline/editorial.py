@@ -1,8 +1,9 @@
-"""Evidence validation, deterministic safety checks, and Groq scripting."""
+﻿"""Evidence validation, deterministic safety checks, and Groq scripting."""
 from hashlib import sha256
 import json
 import os
 import re
+from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 class EditorialError(RuntimeError):
@@ -63,6 +64,14 @@ def generate_episode(stories, model, edition, api_key=None):
     try:
         with urlopen(request, timeout=90) as response: result = json.loads(response.read(5_000_000))
         episode = json.loads(result["choices"][0]["message"]["content"])
+    except HTTPError as exc:
+        try:
+            detail = json.loads(exc.read(100_000)).get("error", {}).get("message", "")
+        except (ValueError, AttributeError, json.JSONDecodeError):
+            detail = ""
+        safe_detail = re.sub(r"(?:gsk_|Bearer )[A-Za-z0-9._-]+", "[redacted]", detail)[:300]
+        raise EditorialError(f"Groq HTTP {exc.code}: {safe_detail or 'request rejected'}") from exc
     except (OSError, ValueError, KeyError, json.JSONDecodeError) as exc:
         raise EditorialError("Groq generation failed") from exc
     return validate_episode(episode, claims, urls)
+
