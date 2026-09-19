@@ -3,11 +3,7 @@
 Independent daily database-security briefing pipeline for CipherTrust Manager,
 Imperva DAM, adjacent Thales products, and general database security.
 
-**Status: live review-preview implementation.** This version validates configuration,
-filters a fixed 24-hour window, groups duplicate reports, ranks relevant stories,
-preserves evidence metadata, and writes resumable/checksummed local run artifacts.
-It does not yet collect live sources, write an AI script, generate audio/video,
-or publish an episode. Sample data is visibly synthetic, not vendor news.
+**Status: live review-preview implementation.** This version collects allowlisted public RSS, NVD, and Hacker News sources, filters and ranks a fixed 24-hour window, generates an evidence-constrained Groq briefing, renders a static review article, and writes resumable/checksummed run artifacts. YouTube OAuth and configured playlist ownership are verified; media generation and publication are not yet enabled.
 
 ## Requirements and plan
 
@@ -38,9 +34,7 @@ Outputs: `runs/is-security-update/2026-09-12/manifest.json`,
 are ignored by Git. A repeated edition requires `--resume`; changing its inputs
 or corrupting artifacts fails rather than silently overwriting the edition.
 
-The current source adapter is fixture-only. YAML configuration reserves RSS/Atom
-adapter names but does not implement network fetching yet. UTC is an explicit
-development default; operator timezone and daily ready-time remain undecided.
+Offline fixtures and live allowlisted source adapters are available. UTC is an explicit development default; operator timezone and daily ready-time remain undecided.
 
 ## Privacy and publishing
 
@@ -58,3 +52,7 @@ No client data, secrets, OAuth files, or raw private material should be added.
 ## Live review preview
 
 Run the manual **Live briefing preview** GitHub Actions workflow. It collects the trailing 24 hours, filters relevant stories, generates a cited and safety-checked briefing with Groq, renders a static article, and uploads seven-day review artifacts. It has read-only repository permissions and no publication step.
+
+## YouTube destination preflight
+
+Run the manual **YouTube OAuth preflight** workflow to refresh OAuth, identify the authorized channel, and verify that it owns the configured playlist. The workflow is read-only and does not upload or publish media.
