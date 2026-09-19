@@ -7,7 +7,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from pipeline.collect import CollectionError, collect_feed, collect_all
+from pipeline.collect import CollectionError, collect_feed, collect_all, fetch
 from pipeline.config import Source, load_settings
 from pipeline.editorial import EditorialError, evidence_packet, generate_episode, safety_findings, validate_episode
 from pipeline.site import build_site, render, sync_existing_site
@@ -23,6 +23,17 @@ class LiveModuleTests(unittest.TestCase):
         self.assertEqual(rows[0]["source_id"], "cisa-alerts")
         self.assertEqual(rows[0]["published_at"], "2026-09-19T08:00:00+00:00")
 
+    def test_fetch_retries_rate_limit_with_bounded_backoff(self):
+        class Response(BytesIO):
+            def geturl(self):
+                return "https://www.cisa.gov/feed"
+
+        rejection = HTTPError("https://www.cisa.gov/feed", 429, "rate limited", {}, BytesIO())
+        address = [(None, None, None, None, ("8.8.8.8", 443))]
+        with patch("pipeline.collect.socket.getaddrinfo", return_value=address), patch("pipeline.collect.urlopen", side_effect=[rejection, Response(b"ok")]) as request, patch("pipeline.collect.time.sleep") as delay:
+            self.assertEqual(fetch("https://www.cisa.gov/feed"), b"ok")
+        self.assertEqual(request.call_count, 2)
+        delay.assert_called_once_with(1)
     def test_all_source_failure_is_distinct(self):
         settings = load_settings(ROOT / "config/show.yaml", ROOT / "config/sources.live.yaml")
         with patch("pipeline.collect.collect_feed", side_effect=CollectionError()), patch("pipeline.collect.collect_nvd", side_effect=CollectionError()), patch("pipeline.collect.collect_hn", side_effect=CollectionError()):

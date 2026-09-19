@@ -1,6 +1,6 @@
 # Implementation backlog
 
-GitHub issues map to P01â€“P15 in ACTION_PLAN.md. All 15 issues are linked to the [IS Security Update Project](https://github.com/users/abdulwajidcisco-syed1/projects/1).
+GitHub issues map to P01Ã¢â‚¬â€œP15 in ACTION_PLAN.md. All 15 issues are linked to the [IS Security Update Project](https://github.com/users/abdulwajidcisco-syed1/projects/1).
 
 | Task | Issue | Current state |
 |---|---|---|
@@ -15,7 +15,7 @@ GitHub issues map to P01â€“P15 in ACTION_PLAN.md. All 15 issues are linked 
 | P09 | [Publish releases with durable resumable state](https://github.com/abdulwajidcisco-syed1/is-security-update/issues/9) | Local manifest/checksum/lock foundation only; no remote publishing yet. |
 | P10 | [Integrate YouTube upload and OAuth recovery](https://github.com/abdulwajidcisco-syed1/is-security-update/issues/10) | Not started. |
 | P11 | [Build daily articles and archive with approved hosting](https://github.com/abdulwajidcisco-syed1/is-security-update/issues/11) | Not started. |
-| P12 | [Wire scheduled orchestration, verification and alerts](https://github.com/abdulwajidcisco-syed1/is-security-update/issues/12) | Unified gated daily/manual workflow implemented; integrated rerun pending. |
+| P12 | [Wire scheduled orchestration, verification and alerts](https://github.com/abdulwajidcisco-syed1/is-security-update/issues/12) | Done; integrated same-edition recovery and destination verification passed in run 35466879235. |
 | P13 | [Complete integrated acceptance and recovery testing](https://github.com/abdulwajidcisco-syed1/is-security-update/issues/13) | Acceptance record created; remaining exercises tracked. |
 | P14 | [Run seven-day scheduled pilot](https://github.com/abdulwajidcisco-syed1/is-security-update/issues/14) | Pilot log ready; schedule gated pending activation. |
 | P15 | [Complete operator handover and go-live](https://github.com/abdulwajidcisco-syed1/is-security-update/issues/15) | Operations guide implemented; operator exercise and sign-off remain. |

@@ -13,8 +13,8 @@ Updated 2026-09-20. Evidence links should identify immutable commits, Actions ru
 | AT07 | Partial | CPU media render, decode, and timing checks pass; human pronunciation review remains. |
 | AT08 | Passed | Release hashes and public Pages article/media/archive verified. |
 | AT09 | Partial | Private upload, playlist, disclosure, and immediate state verified; post-processing playback and token-revocation exercise remain. |
-| AT10 | In progress | Same-edition release/video reconciliation and workflow concurrency implemented; integrated rerun evidence pending. |
-| AT11 | In progress | Timeouts and bounded Groq schema retry implemented; quota/rate-limit and alert exercise pending. |
+| AT10 | Passed | Run 35466879235 restored the existing release checkpoint, reconciled the same release/video/playlist without duplication, redeployed Pages, and verified all destinations after a prior verifier failure. Workflow concurrency prevents overlap. |
+| AT11 | Partial | Timeouts, bounded source 429/5xx/network retries, partial coverage, and bounded Groq schema retry are tested. Quota exhaustion and operator notification receipt remain pilot exercises. |
 | AT12 | In progress | Secret scan and independent GitHub-hosted execution pass; retention preview and assisted recovery remain. |
 | AT13 | Not started | Requires seven consecutive scheduled pilot editions. |
 
@@ -29,5 +29,5 @@ Updated 2026-09-20. Evidence links should identify immutable commits, Actions ru
 
 - Operator: pending
 - Business author: pending
-- Implementer: pending final AT01–AT12 review
+- Implementer: pending final AT01â€“AT12 review
 - Go-live recommendation: pending AT13
