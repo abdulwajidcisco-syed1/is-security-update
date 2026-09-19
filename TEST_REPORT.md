@@ -34,3 +34,5 @@ later acceptance tests from SRS.md.
 - Integrated recovery: run 35466879235 restored the existing checksummed edition, reconciled the GitHub Release and private YouTube video/playlist without duplicates, preserved the Pages archive, redeployed, and verified all destination URLs.
 - Schedule: daily 03:00 UTC trigger is installed; `PILOT_ENABLED` controls scheduled execution.
 - Editorial acceptance now verifies one corrective retry followed by fail-closed behavior; local suite: **41 tests passed**.
+- Publication record from run 35466879235 confirms YouTube video FCr6LP-Y3Tc is private, reconciled, in the playlist, and has processing status succeeded.
+- Editorial prompt now targets 1,800–2,700 spoken words on evidence-rich active days and explicitly requires shorter output rather than padding sparse days.
