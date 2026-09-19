@@ -5,19 +5,19 @@ Updated 2026-09-20. GitHub Release, private YouTube, and public GitHub Pages pub
 | Plan task | State | Evidence / next step |
 |---|---|---|
 | P01 | In progress | Repository visibility is public to support GitHub Pages. Operator schedule, audience, retention and quiet-day decisions remain open. |
-| P02 | Blocked on input | Reference pipeline code was not supplied; no reuse claim is made. |
-| P03 | In progress | Source register created; live CISA, NVD and Hacker News collection passed. Vendor-specific coverage remains. |
-| P04 | In progress | Public repository and Project created; repository visibility was changed with explicit approval to support Pages. YouTube OAuth refresh and destination ownership preflight passed for the configured private playlist. Groq generation, YouTube OAuth preflight, release publishing, and public GitHub Pages hosting pass. |
+| P02 | Waived | Reference pipeline code was not supplied. This is documented as a clean independent implementation with no reuse, inherited credentials, branding, quota, or runtime dependency. |
+| P03 | Done with accepted limitation | Live CISA, NVD and Hacker News sources pass. Official CipherTrust and Imperva DAM public pages were reviewed; no reliable timestamped vendor feed was found, so NVD fallback coverage and the explicit product-release gap are documented. |
+| P04 | Done | Public repository and Project created; repository visibility was changed with explicit approval to support Pages. YouTube OAuth refresh and destination ownership preflight passed for the configured private playlist. Groq generation, YouTube OAuth preflight, release publishing, and public GitHub Pages hosting pass. |
 | P05 | Done | Validated YAML configuration, data records, dry-run CLI, structured manifest and ignored secrets/tooling. |
 | P06 | Substantially implemented | Live RSS, NVD, and Hacker News adapters; bounded public-host fetching; fixed window, timestamp validation, ranking, coverage and exact dedupe. Vendor-specific feeds and semantic dedupe remain. |
 | P07 | Substantially implemented | Groq structured output, claim/evidence mapping, citation/identifier validation, prompt-injection isolation and deterministic safety gates are implemented. Live Groq structured generation passed in GitHub Actions. |
 | P08 | Substantially implemented | Kokoro narration, actual-chunk caption timing, MP3/WAV output and FFmpeg H.264/AAC video rendering passed on a GitHub CPU runner. Human pronunciation and sampled caption review remain. |
-| P09 | Substantially implemented | Checksum-aware GitHub Release publisher creates a draft, uploads seven validated assets, reconciles matching remote SHA-256 digests, blocks ambiguous collisions, and publishes only after completion. Cross-run artifact recovery and injected interruption tests remain. |
+| P09 | Done | Checksum-aware Release publication, remote digest reconciliation, checkpoint restoration, same-date reruns, concurrency, and recovery after a post-publication verifier failure passed without duplicate assets. |
 | P10 | Substantially implemented | OAuth preflight, exact-edition reconciliation, private resumable upload, synthetic-media disclosure, idempotent playlist insertion, video-ID persistence and immediate verification passed. Post-processing playback and token-revocation exercises remain. |
 | P11 | Done | Public GitHub Pages deployment verified at the repository base path and dated episode path, with archive, citations, disclosure, packaged audio/video, responsive controls, and HTTPS. |
 | P12 | Done | Unified manual/daily workflow, fixed 03:00 UTC window, schedule gate, scoped permissions, checkpoint restore, bounded retries, concurrency, 90-minute budget, three-destination reconciliation and URL verification passed in run 35466879235. |
 | P13 | In progress | Acceptance matrix and evidence record created; remaining recovery and operator review exercises are explicit. |
-| P14 | Ready to start | Seven-day pilot log created; schedule remains gated by PILOT_ENABLED. |
+| P14 | In progress | `PILOT_ENABLED=true`; daily 03:00 UTC runs and the approved 09:00 Asia/Calcutta monitor are active. The first scheduled edition is pending. |
 | P15 | In progress | Operations guide now covers secrets, monitoring, pause, resume, OAuth recovery, corrections, retention, pilot, and go-live. Operator exercise/sign-off remains. |
 
 Current validation: 40 local tests pass. Live source smoke test succeeded for all three configured endpoints, collecting 581 records and selecting seven candidates. YouTube OAuth preflight passed in GitHub Actions run 35445880562. The live collection, Groq generation, safety/evidence validation, article rendering and review-artifact upload passed in run 35446699138. The live-preview workflow remains review-only; publishing uses separately confirmed workflows.
