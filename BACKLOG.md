@@ -1,6 +1,6 @@
 # Implementation backlog
 
-GitHub issues map to P01ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œP15 in ACTION_PLAN.md. All 15 issues are linked to the [IS Security Update Project](https://github.com/users/abdulwajidcisco-syed1/projects/1).
+GitHub issues map to P01ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã¢â‚¬Å“P15 in ACTION_PLAN.md. All 15 issues are linked to the [IS Security Update Project](https://github.com/users/abdulwajidcisco-syed1/projects/1).
 
 | Task | Issue | Current state |
 |---|---|---|
@@ -9,8 +9,8 @@ GitHub issues map to P01ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ
 | P03 | [Verify public sources and free-tier feasibility](https://github.com/abdulwajidcisco-syed1/is-security-update/issues/3) | Done with explicit vendor-feed limitation and NVD fallback. |
 | P04 | [Set up independent GitHub and service accounts](https://github.com/abdulwajidcisco-syed1/is-security-update/issues/4) | Done: public repo/Pages, Project, Groq, YouTube OAuth, playlist and CI verified. |
 | P05 | [Build configuration, schemas, offline CLI and tests](https://github.com/abdulwajidcisco-syed1/is-security-update/issues/5) | Implemented locally: 14 tests and dry-run/resume passed. CI enabled; 14 tests and dry-run/resume passed on GitHub Actions. |
-| P06 | [Implement live collection, normalization and ranking](https://github.com/abdulwajidcisco-syed1/is-security-update/issues/6) | Offline selection implemented; live source adapters and semantic dedupe remain. |
-| P07 | [Implement evidence-backed scripting and safety gates](https://github.com/abdulwajidcisco-syed1/is-security-update/issues/7) | Not started. |
+| P06 | [Implement live collection, normalization and ranking](https://github.com/abdulwajidcisco-syed1/is-security-update/issues/6) | Done: live adapters, retries, fixed window, ranking, coverage states, and overlapping-report evidence merge pass. |
+| P07 | [Implement evidence-backed scripting and safety gates](https://github.com/abdulwajidcisco-syed1/is-security-update/issues/7) | Done: cited structured generation, validation, safety gate, corrective retry, and fail-closed behavior pass. |
 | P08 | [Generate narration and synchronized captioned video](https://github.com/abdulwajidcisco-syed1/is-security-update/issues/8) | Not started. |
 | P09 | [Publish releases with durable resumable state](https://github.com/abdulwajidcisco-syed1/is-security-update/issues/9) | Done: checksummed publication, restoration, reconciliation and same-date recovery passed. |
 | P10 | [Integrate YouTube upload and OAuth recovery](https://github.com/abdulwajidcisco-syed1/is-security-update/issues/10) | Not started. |

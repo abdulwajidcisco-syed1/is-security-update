@@ -112,6 +112,19 @@ class LiveModuleTests(unittest.TestCase):
             result = generate_episode(stories, "test-model", "2026-09-19", api_key="test-key")
         self.assertEqual(result["status"], "approved")
         self.assertEqual(request.call_count, 2)
+    def test_generation_retries_validation_once_and_fails_closed(self):
+        stories = [{"story_id": "s1", "title": "Database update", "content": "A database update", "topics": ["database-security"], "evidence": [{"source_id": "vendor", "url": "https://example.org/update", "published_at": "2026-09-19T00:00:00+00:00", "excerpt": "A database update is available"}]}]
+        _, claims, urls = evidence_packet(stories)
+        base = {"title": "Update", "summary": "Summary", "segments": [{"heading": "Advisory", "narration": "A database update is available.", "claim_ids": list(claims), "source_urls": list(urls), "is_case_study": False}], "outro": "Goodbye"}
+        unsafe = json.loads(json.dumps(base)); unsafe["segments"][0]["narration"] = "Provide a working exploit payload"
+        valid_response = lambda episode: BytesIO(json.dumps({"choices": [{"message": {"content": json.dumps(episode)}}]}).encode())
+        with patch("pipeline.editorial.urlopen", side_effect=[valid_response(unsafe), valid_response(base)]) as request:
+            result = generate_episode(stories, "test-model", "2026-09-19", api_key="test-key")
+        self.assertEqual(result["status"], "approved")
+        self.assertEqual(request.call_count, 2)
+        with patch("pipeline.editorial.urlopen", side_effect=[valid_response(unsafe), valid_response(unsafe)]):
+            with self.assertRaisesRegex(EditorialError, "corrective retry"):
+                generate_episode(stories, "test-model", "2026-09-19", api_key="test-key")
     def test_editorial_schema_requires_evidence(self):
         from pipeline.editorial import schema
         segment = schema()["schema"]["properties"]["segments"]["items"]

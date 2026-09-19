@@ -9,7 +9,7 @@ Updated 2026-09-20. Evidence links should identify immutable commits, Actions ru
 | AT03 | Passed | Live cited Groq episode generation and identifier validation. |
 | AT04 | Partial | No invented case-study behavior is implemented; operator review of a real incident edition remains. |
 | AT05 | Passed | Quiet selection and all-source failure are distinct. |
-| AT06 | Partial | Evidence and deterministic safety rejection pass; external checker-unavailable exercise remains. |
+| AT06 | Passed | Unsupported citations and technical identifiers are rejected; source text is isolated as untrusted evidence; unsafe output receives one corrective retry and a second rejection fails closed. |
 | AT07 | Partial | CPU media render, decode, and timing checks pass; human pronunciation review remains. |
 | AT08 | Passed | Release hashes and public Pages article/media/archive verified. |
 | AT09 | Partial | Private upload, playlist, disclosure, and immediate state verified; post-processing playback and token-revocation exercise remain. |
@@ -29,5 +29,5 @@ Updated 2026-09-20. Evidence links should identify immutable commits, Actions ru
 
 - Operator: pending
 - Business author: pending
-- Implementer: pending final AT01â€“AT12 review
+- Implementer: pending final AT01Ã¢â‚¬â€œAT12 review
 - Go-live recommendation: pending AT13
