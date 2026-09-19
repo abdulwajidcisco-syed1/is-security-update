@@ -1,0 +1,56 @@
+name: Publish briefing release
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Type PUBLISH to create or resume the private GitHub Release
+        required: true
+      voice:
+        description: Kokoro voice identifier
+        required: true
+        default: af_heart
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Require explicit publication confirmation
+        run: test "${{ inputs.confirmation }}" = PUBLISH
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: pipeline/requirements-media.txt
+      - name: Install media dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg espeak-ng
+          python -m pip install -r pipeline/requirements-media.txt
+      - name: Generate validated edition
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: python -m pipeline.live_preview --media --voice "${{ inputs.voice }}"
+      - name: Publish or resume GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python -m pipeline.publish_github "preview/$(date -u +%F)"
+      - name: Preserve publication record
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-publication-record
+          path: preview/
+          retention-days: 30
+          if-no-files-found: error
