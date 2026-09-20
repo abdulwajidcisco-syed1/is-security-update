@@ -1,8 +1,8 @@
 schema_version: 1
 sources:
   - id: cisa-alerts
-    url: https://www.cisa.gov/cybersecurity-advisories/all.xml
-    adapter: rss
+    url: https://raw.githubusercontent.com/cisagov/kev-data/develop/known_exploited_vulnerabilities.json
+    adapter: cisa_kev
     enabled: true
     topics: [database-security]
     priority: 3

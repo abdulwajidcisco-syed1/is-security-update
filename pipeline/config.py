@@ -114,7 +114,7 @@ def load_settings(show_path: Path, sources_path: Path) -> Settings:
         source_topics = row.get("topics")
         if not isinstance(source_topics, list) or not source_topics or any(t not in topic_ids for t in source_topics):
             raise ConfigError("Source references unknown or empty topics")
-        if row.get("adapter") not in {"fixture", "rss", "atom", "nvd", "hn"}:
+        if row.get("adapter") not in {"fixture", "rss", "atom", "cisa_kev", "nvd", "hn"}:
             raise ConfigError("Unsupported source adapter")
         if row["enabled"] and row["adapter"] != "fixture" and not row["verified_public"]:
             raise ConfigError("Live sources must be verified before enabling")
