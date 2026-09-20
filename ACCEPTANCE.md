@@ -15,8 +15,8 @@ Updated 2026-09-20. Evidence links should identify immutable commits, Actions ru
 | AT09 | Partial | Private upload, disclosure, exact-edition reconciliation and playlist reuse pass; run 35466879235 records `processing_status: succeeded`. Post-rotation OAuth and playlist ownership preflight passed in run 35472898650. Provider-side old-secret disable/delete confirmation and the controlled token-revocation/reauthorization exercise remain. |
 | AT10 | Passed | Run 35466879235 restored the existing release checkpoint, reconciled the same release/video/playlist without duplication, redeployed Pages, and verified all destinations after a prior verifier failure. Workflow concurrency prevents overlap. |
 | AT11 | Partial | Timeouts, bounded source 429/5xx/network retries, partial coverage, and bounded Groq schema retry are tested. Quota exhaustion and operator notification receipt remain pilot exercises. |
-| AT12 | In progress | Secret scan and independent GitHub-hosted execution pass; retention preview and assisted recovery remain. |
-| AT13 | Not started | Requires seven consecutive scheduled pilot editions. |
+| AT12 | Partial | Secret scan, independent GitHub-hosted execution, 30-edition archive preservation, and same-edition assisted reconciliation pass. Operator-led recovery sign-off remains. |
+| AT13 | In progress (1/7) | The 2026-09-20 scheduled edition published and reconciled all destinations. Coverage was partial because `cisa-alerts` failed while NVD and Hacker News succeeded; two records were metadata-rejected and the approved no-news policy applied. Human content/media review remains. |
 
 ## Release blockers
 
