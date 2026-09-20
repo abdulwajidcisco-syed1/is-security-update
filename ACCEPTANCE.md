@@ -16,7 +16,7 @@ Updated 2026-09-20. Evidence links should identify immutable commits, Actions ru
 | AT10 | Passed | Run 35466879235 restored the existing release checkpoint, reconciled the same release/video/playlist without duplication, redeployed Pages, and verified all destinations after a prior verifier failure. Workflow concurrency prevents overlap. |
 | AT11 | Partial | Timeouts, bounded source 429/5xx/network retries, partial coverage, and bounded Groq schema retry are tested. Quota exhaustion and operator notification receipt remain pilot exercises. |
 | AT12 | Partial | Secret scan, independent GitHub-hosted execution, 30-edition archive preservation, and same-edition assisted reconciliation pass. Operator-led recovery sign-off remains. |
-| AT13 | In progress (1/7) | The 2026-09-20 scheduled edition published and reconciled all destinations. Coverage was partial because `cisa-alerts` failed while NVD and Hacker News succeeded; two records were metadata-rejected and the approved no-news policy applied. Human content/media review remains. |
+| AT13 | In progress (1/7) | The 2026-09-20 scheduled edition published and reconciled all destinations. Its initial collection had partial coverage because the CISA advisory RSS returned HTTP 403 on the hosted runner; fixed-window verification run [35497501506](https://github.com/abdulwajidcisco-syed1/is-security-update/actions/runs/35497501506) confirmed CISA KEV, NVD, and Hacker News all succeed after switching to CISA's official KEV mirror. Two records were metadata-rejected and the approved no-news policy applied. Human content/media review remains. |
 
 ## Release blockers
 
@@ -28,5 +28,5 @@ Updated 2026-09-20. Evidence links should identify immutable commits, Actions ru
 
 - Operator: pending
 - Business author: pending
-- Implementer: pending final AT01ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“AT12 review
+- Implementer: pending final AT01–AT12 review
 - Go-live recommendation: pending AT13
