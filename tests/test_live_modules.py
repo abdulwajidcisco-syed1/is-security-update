@@ -7,7 +7,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from pipeline.collect import CollectionError, collect_feed, collect_all, fetch
+from pipeline.collect import CollectionError, collect_cisa_kev, collect_feed, collect_all, fetch
 from pipeline.config import Source, load_settings
 from pipeline.editorial import EditorialError, evidence_packet, generate_episode, safety_findings, validate_episode
 from pipeline.site import build_site, render, sync_existing_site
@@ -23,6 +23,15 @@ class LiveModuleTests(unittest.TestCase):
         self.assertEqual(rows[0]["source_id"], "cisa-alerts")
         self.assertEqual(rows[0]["published_at"], "2026-09-19T08:00:00+00:00")
 
+
+    def test_cisa_kev_normalization(self):
+        source = Source("cisa-alerts", "https://raw.githubusercontent.com/cisagov/kev-data/develop/known_exploited_vulnerabilities.json", "cisa_kev", True, ("database-security",), 3, True)
+        payload = {"vulnerabilities": [{"cveID": "CVE-2026-12345", "vendorProject": "Example", "product": "Database", "dateAdded": "2026-09-19", "shortDescription": "A database vulnerability.", "requiredAction": "Apply the vendor update."}]}
+        with patch("pipeline.collect.fetch", return_value=json.dumps(payload).encode()):
+            rows = collect_cisa_kev(source, datetime(2026, 9, 19, 9, tzinfo=timezone.utc))
+        self.assertEqual(rows[0]["source_id"], "cisa-alerts")
+        self.assertEqual(rows[0]["published_at"], "2026-09-19T00:00:00+00:00")
+        self.assertIn("CVE-2026-12345", rows[0]["url"])
     def test_fetch_retries_rate_limit_with_bounded_backoff(self):
         class Response(BytesIO):
             def geturl(self):
@@ -36,7 +45,7 @@ class LiveModuleTests(unittest.TestCase):
         delay.assert_called_once_with(1)
     def test_all_source_failure_is_distinct(self):
         settings = load_settings(ROOT / "config/show.yaml", ROOT / "config/sources.live.yaml")
-        with patch("pipeline.collect.collect_feed", side_effect=CollectionError()), patch("pipeline.collect.collect_nvd", side_effect=CollectionError()), patch("pipeline.collect.collect_hn", side_effect=CollectionError()):
+        with patch("pipeline.collect.collect_feed", side_effect=CollectionError()), patch("pipeline.collect.collect_cisa_kev", side_effect=CollectionError()), patch("pipeline.collect.collect_nvd", side_effect=CollectionError()), patch("pipeline.collect.collect_hn", side_effect=CollectionError()):
             with self.assertRaises(CollectionError):
                 collect_all(settings, datetime.now(timezone.utc), datetime.now(timezone.utc))
 

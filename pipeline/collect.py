@@ -15,7 +15,7 @@ from xml.etree import ElementTree
 from .config import public_url
 
 USER_AGENT = "is-security-update/0.2 (+https://github.com/abdulwajidcisco-syed1/is-security-update)"
-ALLOWED_HOSTS = {"www.cisa.gov", "services.nvd.nist.gov", "hn.algolia.com"}
+ALLOWED_HOSTS = {"www.cisa.gov", "raw.githubusercontent.com", "services.nvd.nist.gov", "hn.algolia.com"}
 
 class CollectionError(RuntimeError):
     pass
@@ -78,6 +78,28 @@ def collect_feed(source, retrieved: datetime) -> list[dict]:
                 continue
     return rows
 
+def collect_cisa_kev(source, retrieved: datetime) -> list[dict]:
+    payload = json.loads(fetch(source.url))
+    rows = []
+    for item in payload.get("vulnerabilities", []):
+        cve_id = item.get("cveID")
+        date_added = item.get("dateAdded")
+        if not cve_id or not date_added:
+            continue
+        published = datetime.fromisoformat(date_added).replace(tzinfo=timezone.utc)
+        vendor = item.get("vendorProject", "Unknown vendor")
+        product = item.get("product", "Unknown product")
+        description = item.get("shortDescription", "")
+        action = item.get("requiredAction", "")
+        rows.append({
+            "source_id": source.id,
+            "url": f"https://www.cisa.gov/known-exploited-vulnerabilities-catalog?field_cve={cve_id}",
+            "title": f"{cve_id}: {vendor} {product}",
+            "content": " ".join(part for part in (description, action) if part),
+            "published_at": published.isoformat(),
+            "retrieved_at": retrieved.isoformat(),
+        })
+    return rows
 def collect_nvd(source, start: datetime, end: datetime, retrieved: datetime) -> list[dict]:
     query = urlencode({"pubStartDate": start.isoformat(timespec="milliseconds").replace("+00:00", "Z"), "pubEndDate": end.isoformat(timespec="milliseconds").replace("+00:00", "Z"), "resultsPerPage": 2000})
     payload = json.loads(fetch(f"{source.url}?{query}"))
@@ -108,6 +130,8 @@ def collect_all(settings, start: datetime, end: datetime) -> tuple[list[dict], d
         try:
             if source.adapter in {"rss", "atom"}:
                 rows = collect_feed(source, retrieved)
+            elif source.adapter == "cisa_kev":
+                rows = collect_cisa_kev(source, retrieved)
             elif source.adapter == "nvd":
                 rows = collect_nvd(source, start, end, retrieved)
             elif source.adapter == "hn":
