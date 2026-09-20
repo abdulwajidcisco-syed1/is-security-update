@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 import ipaddress
 import json
 import socket
+import sys
 import time
 from urllib.error import HTTPError
 from urllib.parse import urlencode, urlsplit
@@ -115,7 +116,17 @@ def collect_all(settings, start: datetime, end: datetime) -> tuple[list[dict], d
                 raise CollectionError("Unsupported adapter")
             records.extend(rows)
             outcomes[source.id] = "succeeded"
-        except (CollectionError, ValueError, KeyError, json.JSONDecodeError):
+        except (CollectionError, ValueError, KeyError, json.JSONDecodeError) as exc:
+            cause = exc.__cause__
+            if isinstance(cause, HTTPError):
+                reason = f"http_{cause.code}"
+            elif isinstance(cause, ElementTree.ParseError):
+                reason = "malformed_xml"
+            elif isinstance(cause, OSError):
+                reason = "network_error"
+            else:
+                reason = type(exc).__name__
+            print(json.dumps({"event": "source_failed", "source_id": source.id, "reason": reason}), file=sys.stderr)
             outcomes[source.id] = "failed"
     if not outcomes or all(value == "failed" for value in outcomes.values()):
         raise CollectionError("All live sources failed")
