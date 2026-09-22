@@ -1,6 +1,6 @@
 # Integrated acceptance record
 
-Updated 2026-09-20. Evidence links should identify immutable commits, Actions runs, releases, videos, or dated pages.
+Updated 2026-09-22. Evidence links should identify immutable commits, Actions runs, releases, videos, or dated pages.
 
 | Test | State | Evidence / remaining exercise |
 |---|---|---|
@@ -16,7 +16,7 @@ Updated 2026-09-20. Evidence links should identify immutable commits, Actions ru
 | AT10 | Passed | Run 35466879235 restored the existing release checkpoint, reconciled the same release/video/playlist without duplication, redeployed Pages, and verified all destinations after a prior verifier failure. Workflow concurrency prevents overlap. |
 | AT11 | Partial | Timeouts, bounded source 429/5xx/network retries, partial coverage, and bounded Groq schema retry are tested. Quota exhaustion and operator notification receipt remain pilot exercises. |
 | AT12 | Partial | Secret scan, independent GitHub-hosted execution, 30-edition archive preservation, and same-edition assisted reconciliation pass. Operator-led recovery sign-off remains. |
-| AT13 | In progress (2/7) | The 2026-09-20 and 2026-09-21 scheduled editions published and reconciled all destinations. The day-one initial collection had partial coverage because the CISA advisory RSS returned HTTP 403 on the hosted runner; fixed-window verification run [35497501506](https://github.com/abdulwajidcisco-syed1/is-security-update/actions/runs/35497501506) confirmed CISA KEV, NVD, and Hacker News all succeed after switching to CISA's official KEV mirror. Two records were metadata-rejected and the approved no-news policy applied. The 2026-09-21 [scheduled run](https://github.com/abdulwajidcisco-syed1/is-security-update/actions/runs/35556210884) had full source coverage, one metadata rejection, and a no-news edition. Its release, private YouTube upload/playlist record, and public Pages archive/episode passed; YouTube processing was still in progress at publication. Human content/media review remains. |
+| AT13 | In progress (3/7) | The 2026-09-20 through 2026-09-22 scheduled editions published and reconciled all destinations. The day-one initial collection had partial coverage because the CISA advisory RSS returned HTTP 403 on the hosted runner; fixed-window verification run [35497501506](https://github.com/abdulwajidcisco-syed1/is-security-update/actions/runs/35497501506) confirmed CISA KEV, NVD, and Hacker News all succeed after switching to CISA's official KEV mirror. Two records were metadata-rejected and the approved no-news policy applied. The 2026-09-21 [scheduled run](https://github.com/abdulwajidcisco-syed1/is-security-update/actions/runs/35556210884) had full source coverage, one metadata rejection, and a no-news edition. Its release, private YouTube upload/playlist record, and public Pages archive/episode passed; YouTube processing was still in progress at publication. The 2026-09-22 [scheduled run](https://github.com/abdulwajidcisco-syed1/is-security-update/actions/runs/35681779601) published an eight-story approved episode with full source coverage, no quarantined records, 465.925 seconds of media, and 19 captions. Release, private YouTube upload/playlist record, and public Pages archive/episode passed. Human content/media review remains. |
 
 ## Release blockers
 
