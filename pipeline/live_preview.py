@@ -29,7 +29,10 @@ def main():
     records, outcomes = collect_all(settings, start, end)
     selected, quarantine = select_items(records, settings, end)
     daily_selected_count = len(selected)
-    selected = attach_historical_context(selected, records, end) if selected else historical_reference_stories(records, end)
+    selected = attach_historical_context(selected, records, end)
+    history = historical_reference_stories(records, end)
+    existing_urls = {story["url"] for story in selected}
+    selected.extend(story for story in history if story["url"] not in existing_urls)
     episode = generate_episode(selected, args.model, edition, minimum_words=4_000)
     directory = args.output / edition; directory.mkdir(parents=True, exist_ok=True)
     paths = {"selected.json": selected, "quarantine.json": quarantine, "episode.json": episode}
