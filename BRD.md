@@ -47,11 +47,11 @@ especially since being behind directly weakens the credibility of advice given t
 
 ## 3. Objectives (V1)
 
-1. Every day, generate one audio episode (~12–18 minutes on a typical news day) summarizing the
+1. Every day, generate one audio episode (at least 30 minutes on every scheduled day) summarizing the
    prior 24 hours of notable activity across Thales/CipherTrust Manager, Imperva DAM, and
-   database security generally. **Episode length varies with real news volume, same principle as
-   the existing tech-briefing show** — the pipeline must never pad with invented or tangential
-   content to hit a target runtime.
+   database security generally. Every scheduled edition runs at least 30 minutes. When current news is sparse,
+   the remaining time uses rotating, cited historical CVE references related to supported database products;
+   invented, tangential, or repetitive filler is prohibited.
 2. Content must be simple, conversational English, but precise enough to be client-conversation
    ready (correct product/version names, correct CVE IDs, no vague hand-waving).
 3. Content should highlight, where available:
@@ -162,7 +162,7 @@ Same pipeline shape already proven in `shahbaz-daily-updates`, reused rather tha
 | FR-3 | System shall generate a single narration script per day covering all topics with meaningful updates (topics with no news are skipped or briefly noted). |
 | FR-4 | Script tone shall be simple, conversational English, but precise on product names, version numbers, and CVE IDs — this content may be reused in client conversations. |
 | FR-5 | Where applicable, script shall mention: what changed, affected versions, and — for incidents — root cause and resolution/mitigation. |
-| FR-6 | System shall convert the script into an audio file. Runtime targets ~12–18 minutes on a typical news day, shorter on quiet days rather than padded. |
+| FR-6 | System shall convert the script into an audio file. Every scheduled video shall contain at least 30 minutes of measured narration. Quiet days use rotating, cited historical CVE references rather than invented filler. |
 | FR-7 | System shall render a captioned video from the audio + script, reusing the existing pipeline's cover-art/caption approach. |
 | FR-8 | System shall publish the daily audio + transcript + video as GitHub release assets in the project's repo. |
 | FR-9 | System shall generate and publish a new **GitHub Pages article page** each day: a written summary of the episode with an embedded audio player and embedded video, at a stable per-date URL, plus an updated index/archive page linking to all past daily articles. |
@@ -215,9 +215,7 @@ Same pipeline shape already proven in `shahbaz-daily-updates`, reused rather tha
    advising clients. Skipped on days with nothing genuinely reportable, not invented.
 4. Outro (recap + sign-off).
 
-Target length: ~1,800–2,700 spoken words for ~12–18 minutes at the existing project's narration
-pace convention (150 wpm), varying honestly with real news/incident volume rather than padded to
-a fixed number.
+Target length: ~4,500–5,500 spoken words and at least 30 minutes of measured narration. Current developments remain distinct from a bounded historical CVE reference section. Products, services, dates, countries, locations, and industries are included only when explicit in cited evidence; missing attributes are identified as unreported.
 
 ## 12. Delivery / Consumption (V1)
 
@@ -320,7 +318,7 @@ co-branded output of `shahbaz-daily-updates`.
 Decision proposed: this project is a **second, fully independent repo** (own account, own
 credentials — Section 13) running the **same pattern** already confirmed in
 `shahbaz-daily-updates` Section 14 — not a new evaluation. Every component below is $0/month at
-this project's scale (single show, one ~15-minute episode/day), on the friend's own free-tier
+this project's scale (single show, one 30–40-minute episode/day), on the friend's own free-tier
 accounts.
 
 | Stage | Tool | Notes |
@@ -394,8 +392,7 @@ rules.
 ## 18. Success Metrics (V1)
 
 - Episode successfully generated and published (GitHub release + YouTube) on ≥95% of days.
-- Episode runtime tracks real news volume (~12–18 min on active days, shorter on quiet ones) —
-  never padded to hit a number.
+- Every scheduled video is at least 30 minutes. Quiet days use cited, rotating historical CVE context; invented or repetitive filler is prohibited.
 - Zero fabricated facts, CVEs, versions, or resolutions — traceable to source links in the
   transcript.
 - Zero instances of exploit code or attack how-to content passing the safety gate (Section 9).

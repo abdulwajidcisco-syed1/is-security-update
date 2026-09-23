@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from pipeline.media import Cue, MediaError, narration_sections, write_srt
+from pipeline.media import Cue, MediaError, caption_chunks, narration_sections, write_srt
 
 
 EPISODE = {
@@ -34,6 +34,12 @@ class MediaTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             with self.assertRaisesRegex(MediaError, "monotonic"):
                 write_srt([Cue(0, 2, "First"), Cue(1, 3, "Second")], Path(folder) / "bad.srt")
+
+    def test_caption_chunks_are_readable_and_preserve_words(self):
+        text = "First sentence is short. Second sentence contains several additional words for a readable subtitle cue."
+        chunks = caption_chunks(text, maximum=45)
+        self.assertTrue(all(len(chunk) <= 45 for chunk in chunks))
+        self.assertEqual(" ".join(chunks), text)
 
 
 if __name__ == "__main__":

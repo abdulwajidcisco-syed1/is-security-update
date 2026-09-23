@@ -16,7 +16,7 @@ def benchmark_episode():
         "This synthetic passage measures narration and caption capacity only; it contains no current vulnerability claim or operational instruction.",
     )
     segments = []
-    for index in range(12):
+    for index in range(28):
         narration = " ".join((*sentences, *sentences[:-1]))
         segments.append({"heading": f"Synthetic benchmark section {index + 1}", "narration": narration, "claim_ids": [f"benchmark-{index + 1}"], "source_urls": ["https://example.org/synthetic-benchmark"], "is_case_study": False})
     episode = {"title": "Synthetic active-day media benchmark", "summary": "A non-publishing capacity test for narration, captions, and video encoding.", "segments": segments, "outro": "The synthetic media benchmark is complete.", "status": "approved"}
@@ -32,10 +32,10 @@ def main():
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
     episode = benchmark_episode()
-    if not 1800 <= episode["word_count"] <= 2700:
-        raise ValueError("Synthetic benchmark must remain within the active-day word target")
+    if not 4_000 <= episode["word_count"] <= 5_500:
+        raise ValueError("Synthetic benchmark must remain within the 30-minute word target")
     write_json(args.output / "episode.json", episode)
-    metadata = render_media(episode, args.output, voice=args.voice)
+    metadata = render_media(episode, args.output, voice=args.voice, minimum_duration_seconds=1_800)
     print(json.dumps({"status": "benchmark_complete", "word_count": episode["word_count"], "duration_seconds": metadata["duration_seconds"], "caption_count": metadata["caption_count"]}))
 
 
