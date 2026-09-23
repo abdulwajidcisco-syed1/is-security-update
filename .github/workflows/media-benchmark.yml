@@ -33,6 +33,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install --yes ffmpeg espeak-ng
           python -m pip install -r pipeline/requirements-media.txt
+      - name: Smoke-test animated renderer
+        run: |
+          python -m pipeline.media_smoke
+          test -s smoke-media/video.mp4
+          test -s smoke-media/visual_plan.json
       - name: Render synthetic non-publishing benchmark
         run: python -m pipeline.benchmark --voice "${{ inputs.voice }}"
       - name: Validate benchmark artifacts
