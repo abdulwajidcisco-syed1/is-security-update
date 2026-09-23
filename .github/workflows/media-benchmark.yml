@@ -41,6 +41,8 @@ jobs:
           test -s benchmark-media/video.mp4
           test -s benchmark-media/captions.srt
           test -s benchmark-media/media.json
+          test -s benchmark-media/visuals.ass
+          test -s benchmark-media/visual_plan.json
       - uses: actions/upload-artifact@v4
         with:
           name: active-day-media-benchmark
