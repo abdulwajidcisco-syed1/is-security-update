@@ -21,6 +21,7 @@ class Cue:
 
 MIN_ACTIVE_DURATION_SECONDS = 1_800
 CAPTION_MAX_CHARS = 110
+VISUAL_ACCENT = "0x22d3ee"
 
 
 def narration_sections(episode):
@@ -118,6 +119,62 @@ def write_srt(cues, output):
     Path(output).write_text("\n".join(rows), encoding="utf-8")
 
 
+def visual_scenes(episode, cues):
+    """Build evidence-safe visual cards aligned to the spoken headings."""
+    if not cues:
+        return []
+    starts = {cue.text: cue.start for cue in cues}
+    sections = [(episode["title"], "DAILY SECURITY BRIEFING", episode.get("summary", ""))]
+    for segment in episode.get("segments", []):
+        sections.append((segment["heading"], "SECURITY UPDATE", segment.get("narration", "")))
+    sections.append((episode["outro"], "BRIEFING COMPLETE", ""))
+    scenes = []
+    for index, (heading, label, detail) in enumerate(sections):
+        start = starts.get(heading)
+        if start is None:
+            continue
+        identifiers = sorted(set(re.findall(r"\bCVE-\d{4}-\d{4,}\b", heading + " " + detail, re.I)))[:4]
+        scenes.append({
+            "start": round(start, 3),
+            "end": 0.0,
+            "label": label,
+            "heading": " ".join(heading.split())[:120],
+            "identifiers": identifiers,
+        })
+    for index, scene in enumerate(scenes):
+        scene["end"] = round(scenes[index + 1]["start"] if index + 1 < len(scenes) else cues[-1].end, 3)
+    return scenes
+
+
+def write_visual_ass(scenes, output):
+    """Write top-of-frame chapter cards; spoken captions remain independent."""
+    def stamp(value):
+        hours, remainder = divmod(max(0, value), 3600)
+        minutes, seconds = divmod(remainder, 60)
+        return f"{int(hours)}:{int(minutes):02d}:{seconds:05.2f}"
+
+    def safe(value):
+        return str(value).replace("\\", r"\\").replace("{", r"\{").replace("}", r"\}").replace("\n", " ")
+
+    header = """[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Card,Arial,48,&H00FFFFFF,&H000000FF,&H00231A0B,&H990B1220,1,0,0,0,100,100,0,0,3,2,0,8,120,120,90,1
+Style: Label,Arial,25,&H00EED322,&H000000FF,&H00231A0B,&H000B1220,1,0,0,0,100,100,2,0,1,1,0,8,120,120,45,1
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+"""
+    rows = [header]
+    for scene in scenes:
+        ids = "  |  ".join(scene["identifiers"])
+        rows.append(f"Dialogue: 0,{stamp(scene['start'])},{stamp(scene['end'])},Label,,0,0,0,,{safe(scene['label'] + (('  •  ' + ids) if ids else ''))}\n")
+        rows.append(f"Dialogue: 0,{stamp(scene['start'])},{stamp(scene['end'])},Card,,0,0,0,,{{\\fad(350,350)}}{safe(scene['heading'])}\n")
+    Path(output).write_text("".join(rows), encoding="utf-8")
+
+
 def _run(command):
     try:
         result = subprocess.run(command, check=False, capture_output=True, text=True, timeout=900)
@@ -135,11 +192,23 @@ def render_media(episode, output, voice="af_heart", speed=1.0, ffmpeg="ffmpeg", 
     if minimum_duration_seconds and duration < minimum_duration_seconds:
         raise MediaError(f"Scheduled video is shorter than {minimum_duration_seconds} seconds")
     write_srt(cues, captions)
+    scenes = visual_scenes(episode, cues)
+    visuals = output / "visuals.ass"
+    write_visual_ass(scenes, visuals)
+    (output / "visual_plan.json").write_text(json.dumps({"schema_version": 1, "scenes": scenes}, indent=2) + "\n", encoding="utf-8")
     _run([ffmpeg, "-y", "-hide_banner", "-loglevel", "error", "-i", str(wav), "-codec:a", "libmp3lame", "-q:a", "2", str(mp3)])
     subtitle_path = captions.resolve().as_posix().replace(":", r"\:").replace("'", r"\'")
-    _run([ffmpeg, "-y", "-hide_banner", "-loglevel", "error", "-f", "lavfi", "-i", "color=c=0x0b1220:s=1920x1080:r=30", "-i", str(wav), "-vf", f"subtitles='{subtitle_path}':force_style='FontSize=34,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,BorderStyle=3,Outline=1,Shadow=0,MarginV=80'", "-codec:v", "libx264", "-preset", "veryfast", "-pix_fmt", "yuv420p", "-codec:a", "aac", "-b:a", "160k", "-shortest", str(video)])
+    visual_path = visuals.resolve().as_posix().replace(":", r"\:").replace("'", r"\'")
+    filters = (
+        "[0:v]drawgrid=w=120:h=120:t=2:c=0x1e3a5f@0.35:x='mod(t*35,120)':y='mod(t*18,120)',"
+        f"drawbox=x=0:y=1048:w='iw*min(t/{max(duration, 0.001):.3f},1)':h=32:c={VISUAL_ACCENT}@0.9:t=fill[base];"
+        "[1:a]showwaves=s=1680x150:mode=line:colors=0x22d3ee@0.65:scale=sqrt[wave];"
+        "[base][wave]overlay=x=120:y=820:format=auto,"
+        f"ass='{visual_path}',subtitles='{subtitle_path}':force_style='FontSize=34,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,BorderStyle=3,Outline=1,Shadow=0,MarginV=80'[v]"
+    )
+    _run([ffmpeg, "-y", "-hide_banner", "-loglevel", "error", "-f", "lavfi", "-i", "color=c=0x0b1220:s=1920x1080:r=30", "-i", str(wav), "-filter_complex", filters, "-map", "[v]", "-map", "1:a", "-codec:v", "libx264", "-preset", "veryfast", "-pix_fmt", "yuv420p", "-codec:a", "aac", "-b:a", "160k", "-shortest", str(video)])
     metadata = {"schema_version": 1, "voice": voice, "speed": speed, "duration_seconds": round(duration, 3), "caption_count": len(cues), "artifacts": {}}
-    for path in (wav, mp3, captions, video):
+    for path in (wav, mp3, captions, visuals, output / "visual_plan.json", video):
         if not path.is_file() or not path.stat().st_size:
             raise MediaError(f"Missing media artifact: {path.name}")
         metadata["artifacts"][path.name] = {"bytes": path.stat().st_size, "sha256": sha256(path.read_bytes()).hexdigest()}

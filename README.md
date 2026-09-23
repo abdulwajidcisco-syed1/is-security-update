@@ -3,7 +3,7 @@
 Independent daily database-security briefing pipeline for CipherTrust Manager,
 Imperva DAM, adjacent Thales products, and general database security.
 
-**Status: live review-preview implementation.** This version collects allowlisted public RSS, NVD, and Hacker News sources, filters and ranks a fixed 24-hour window, generates an evidence-constrained Groq briefing, renders a static review article, and writes resumable/checksummed run artifacts. YouTube OAuth and configured playlist ownership are verified; media generation and publication are not yet enabled.
+**Status: live review-preview implementation.** This version collects allowlisted public RSS, NVD, and Hacker News sources, filters and ranks a fixed 24-hour window, generates an evidence-constrained Groq briefing, renders an animated captioned video and static review article, and writes resumable/checksummed run artifacts. YouTube OAuth and configured playlist ownership are verified.
 
 ## Requirements and plan
 

@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from pipeline.media import Cue, MediaError, caption_chunks, narration_sections, write_srt
+from pipeline.media import Cue, MediaError, caption_chunks, narration_sections, visual_scenes, write_srt, write_visual_ass
 
 
 EPISODE = {
@@ -40,6 +40,19 @@ class MediaTests(unittest.TestCase):
         chunks = caption_chunks(text, maximum=45)
         self.assertTrue(all(len(chunk) <= 45 for chunk in chunks))
         self.assertEqual(" ".join(chunks), text)
+
+    def test_visual_scenes_align_headings_and_extract_cves(self):
+        episode = {**EPISODE, "segments": [{"heading": "Database security", "narration": "Review CVE-2026-12345 with the vendor."}]}
+        cues = [Cue(0, 1, episode["title"]), Cue(1, 2, episode["summary"]), Cue(2, 3, "Database security"), Cue(3, 4, episode["segments"][0]["narration"]), Cue(4, 5, episode["outro"])]
+        scenes = visual_scenes(episode, cues)
+        self.assertEqual(scenes[1]["start"], 2)
+        self.assertEqual(scenes[1]["identifiers"], ["CVE-2026-12345"])
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "visuals.ass"
+            write_visual_ass(scenes, path)
+            text = path.read_text(encoding="utf-8")
+            self.assertIn("Database security", text)
+            self.assertIn("CVE-2026-12345", text)
 
 
 if __name__ == "__main__":
