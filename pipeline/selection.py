@@ -7,6 +7,8 @@ from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from .config import public_url
 
+HISTORY_PRODUCTS = ("postgresql", "mysql", "mariadb", "oracle database", "microsoft sql server", "mongodb", "redis", "elasticsearch", "couchdb")
+
 
 def timestamp(value: str) -> datetime:
     if not isinstance(value, str):
@@ -86,3 +88,62 @@ def select_items(records: list, settings, window_end: datetime):
     for story in selected:
         story["evidence"] = list({(e["source_id"], e["url"], e["effective_at"]): e for e in story["evidence"]}.values())
     return selected, quarantine
+
+
+def attach_historical_context(selected: list, records: list, window_end: datetime, per_product=3):
+    """Attach older CISA KEV evidence for explicitly named database products."""
+    cutoff = window_end - timedelta(hours=24)
+    historical = []
+    for row in records:
+        if row.get("source_id") != "cisa-alerts":
+            continue
+        try:
+            if timestamp(row.get("published_at")) >= cutoff:
+                continue
+        except (TypeError, ValueError):
+            continue
+        searchable = normalized_text(str(row.get("title", "")) + " " + str(row.get("content", "")))
+        historical.append((row, searchable))
+    for story in selected:
+        searchable = normalized_text(story.get("title", "") + " " + story.get("content", ""))
+        products = [product for product in HISTORY_PRODUCTS if product in searchable]
+        additions = []
+        for product in products:
+            matches = [row for row, text in historical if product in text]
+            matches.sort(key=lambda row: timestamp(row["published_at"]), reverse=True)
+            for row in matches[:per_product]:
+                additions.append({
+                    "source_id": row["source_id"], "url": canonical_url(row["url"]),
+                    "published_at": timestamp(row["published_at"]).isoformat(),
+                    "effective_at": timestamp(row["published_at"]).isoformat(),
+                    "timestamp_basis": "historical_date_added",
+                    "retrieved_at": timestamp(row["retrieved_at"]).isoformat(),
+                    "excerpt": row["content"], "context_type": "historical_cve",
+                    "related_product": product,
+                })
+        existing = {(item["source_id"], item["url"]) for item in story.get("evidence", [])}
+        story["evidence"].extend(item for item in additions if (item["source_id"], item["url"]) not in existing)
+    return selected
+
+
+def historical_reference_stories(records: list, window_end: datetime, limit=8):
+    """Build a cited, rotating quiet-day database CVE history set from CISA KEV."""
+    cutoff = window_end - timedelta(hours=24)
+    candidates = []
+    for row in records:
+        try:
+            searchable = normalized_text(str(row.get("title", "")) + " " + str(row.get("content", "")))
+            products = [product for product in HISTORY_PRODUCTS if product in searchable]
+            published = timestamp(row.get("published_at"))
+            if row.get("source_id") != "cisa-alerts" or published >= cutoff or not products:
+                continue
+            url = canonical_url(row["url"])
+            evidence = {"source_id": row["source_id"], "url": url, "published_at": published.isoformat(), "effective_at": published.isoformat(), "timestamp_basis": "historical_date_added", "retrieved_at": timestamp(row["retrieved_at"]).isoformat(), "excerpt": row["content"], "context_type": "historical_cve", "related_product": products[0]}
+            candidates.append({"story_id": sha256(url.encode()).hexdigest()[:16], "title": row["title"], "content": row["content"], "url": url, "topics": ["database-security"], "score": 0, "effective_at": published.isoformat(), "content_hash": sha256(normalized_text(row["content"]).encode()).hexdigest(), "evidence": [evidence]})
+        except (KeyError, TypeError, ValueError):
+            continue
+    candidates.sort(key=lambda item: timestamp(item["effective_at"]), reverse=True)
+    if not candidates:
+        return []
+    offset = window_end.date().toordinal() % len(candidates)
+    return (candidates[offset:] + candidates[:offset])[:limit]

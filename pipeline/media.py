@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from hashlib import sha256
 import json
 from pathlib import Path
+import re
 import subprocess
 import wave
 
@@ -18,6 +19,10 @@ class Cue:
     text: str
 
 
+MIN_ACTIVE_DURATION_SECONDS = 1_800
+CAPTION_MAX_CHARS = 110
+
+
 def narration_sections(episode):
     if episode.get("status") not in {"approved", "no_news"}:
         raise MediaError("Only approved content may be narrated")
@@ -26,6 +31,24 @@ def narration_sections(episode):
         sections.extend((segment["heading"], segment["narration"]))
     sections.append(episode["outro"])
     return [text.strip() for text in sections if text and text.strip()]
+
+
+def caption_chunks(text, maximum=CAPTION_MAX_CHARS):
+    """Split narration into readable cues without changing spoken text."""
+    sentences = re.split(r"(?<=[.!?])\s+", " ".join(text.split()))
+    chunks = []
+    for sentence in sentences:
+        words = sentence.split()
+        current = []
+        for word in words:
+            candidate = " ".join((*current, word))
+            if current and len(candidate) > maximum:
+                chunks.append(" ".join(current)); current = [word]
+            else:
+                current.append(word)
+        if current:
+            chunks.append(" ".join(current))
+    return chunks
 
 
 def _audio_array(result):
@@ -60,17 +83,18 @@ def synthesize_wav(episode, output, voice="af_heart", speed=1.0, pipeline_factor
     with wave.open(str(output), "wb") as target:
         target.setparams((1, 2, sample_rate, 0, "NONE", "not compressed"))
         for section in narration_sections(episode):
-            section_start = frame_count / sample_rate
-            wrote_section = False
-            for result in pipeline(section, voice=voice, speed=speed, split_pattern=r"\n+"):
-                audio = _audio_array(result)
-                if audio is None:
-                    continue
-                pcm = (np.clip(audio, -1, 1) * 32767).astype(np.int16)
-                target.writeframes(pcm.tobytes()); frame_count += len(pcm); wrote_section = True
-            if not wrote_section:
-                raise MediaError("Kokoro produced no audio for a narration section")
-            cues.append(Cue(section_start, frame_count / sample_rate, section))
+            for chunk in caption_chunks(section):
+                chunk_start = frame_count / sample_rate
+                wrote_chunk = False
+                for result in pipeline(chunk, voice=voice, speed=speed, split_pattern=r"\n+"):
+                    audio = _audio_array(result)
+                    if audio is None:
+                        continue
+                    pcm = (np.clip(audio, -1, 1) * 32767).astype(np.int16)
+                    target.writeframes(pcm.tobytes()); frame_count += len(pcm); wrote_chunk = True
+                if not wrote_chunk:
+                    raise MediaError("Kokoro produced no audio for a narration chunk")
+                cues.append(Cue(chunk_start, frame_count / sample_rate, chunk))
     if not frame_count:
         raise MediaError("Kokoro produced empty audio")
     return cues, frame_count / sample_rate
@@ -104,10 +128,12 @@ def _run(command):
         raise MediaError("Media encoding failed: " + detail)
 
 
-def render_media(episode, output, voice="af_heart", speed=1.0, ffmpeg="ffmpeg"):
+def render_media(episode, output, voice="af_heart", speed=1.0, ffmpeg="ffmpeg", minimum_duration_seconds=0):
     output = Path(output); output.mkdir(parents=True, exist_ok=True)
     wav, mp3, captions, video = (output / name for name in ("audio.wav", "audio.mp3", "captions.srt", "video.mp4"))
     cues, duration = synthesize_wav(episode, wav, voice, speed)
+    if minimum_duration_seconds and duration < minimum_duration_seconds:
+        raise MediaError(f"Scheduled video is shorter than {minimum_duration_seconds} seconds")
     write_srt(cues, captions)
     _run([ffmpeg, "-y", "-hide_banner", "-loglevel", "error", "-i", str(wav), "-codec:a", "libmp3lame", "-q:a", "2", str(mp3)])
     subtitle_path = captions.resolve().as_posix().replace(":", r"\:").replace("'", r"\'")

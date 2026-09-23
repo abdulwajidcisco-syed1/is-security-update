@@ -10,7 +10,7 @@ from .config import load_settings
 from .editorial import generate_episode
 from .media import render_media
 from .run import write_json
-from .selection import select_items, timestamp
+from .selection import attach_historical_context, historical_reference_stories, select_items, timestamp
 from .site import build_site
 
 def main():
@@ -28,7 +28,9 @@ def main():
     settings = load_settings(args.show, args.sources)
     records, outcomes = collect_all(settings, start, end)
     selected, quarantine = select_items(records, settings, end)
-    episode = generate_episode(selected, args.model, edition)
+    daily_selected_count = len(selected)
+    selected = attach_historical_context(selected, records, end) if selected else historical_reference_stories(records, end)
+    episode = generate_episode(selected, args.model, edition, minimum_words=4_000)
     directory = args.output / edition; directory.mkdir(parents=True, exist_ok=True)
     paths = {"selected.json": selected, "quarantine.json": quarantine, "episode.json": episode}
     for name, data in paths.items(): write_json(directory / name, data)
@@ -38,12 +40,12 @@ def main():
     transcript += [episode["outro"], ""]
     (directory / "transcript.md").write_text("\n".join(transcript), encoding="utf-8")
     if args.media:
-        render_media(episode, directory, voice=args.voice)
+        render_media(episode, directory, voice=args.voice, minimum_duration_seconds=1_800)
     build_site(directory / "site", directory / "episode.json", edition, media_source=directory if args.media else None)
-    manifest = {"schema_version": 1, "mode": "live_preview", "publication": "disabled", "edition": edition, "window_start": start.isoformat(), "window_end": end.isoformat(), "source_outcomes": outcomes, "raw_count": len(records), "selected_count": len(selected), "quarantined_count": len(quarantine), "selection_outcome": "selected" if selected else ("metadata_rejected" if quarantine else "no_qualifying_items"), "episode_status": episode["status"], "artifacts": {}}
+    manifest = {"schema_version": 1, "mode": "live_preview", "publication": "disabled", "edition": edition, "window_start": start.isoformat(), "window_end": end.isoformat(), "source_outcomes": outcomes, "raw_count": len(records), "selected_count": daily_selected_count, "context_story_count": len(selected) - daily_selected_count, "quarantined_count": len(quarantine), "selection_outcome": "selected" if daily_selected_count else ("historical_context" if selected else ("metadata_rejected" if quarantine else "no_qualifying_items")), "episode_status": episode["status"], "artifacts": {}}
     for path in directory.rglob("*"):
         if path.is_file() and path.name != "manifest.json": manifest["artifacts"][str(path.relative_to(directory)).replace("\\", "/")] = sha256(path.read_bytes()).hexdigest()
     write_json(directory / "manifest.json", manifest)
-    print(json.dumps({"status": "preview_complete", "edition": edition, "selected": len(selected), "publication": "disabled"}))
+    print(json.dumps({"status": "preview_complete", "edition": edition, "selected": daily_selected_count, "context_stories": len(selected) - daily_selected_count, "publication": "disabled"}))
 
 if __name__ == "__main__": raise SystemExit(main())

@@ -9,7 +9,7 @@ import yaml
 
 from pipeline.config import ConfigError, load_settings, public_url
 from pipeline.run import RunError, edition_lock, execute
-from pipeline.selection import canonical_url, select_items, timestamp
+from pipeline.selection import attach_historical_context, canonical_url, historical_reference_stories, select_items, timestamp
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -66,6 +66,15 @@ class PipelineTests(unittest.TestCase):
         selected, _ = select_items([noise] + self.payload["items"], settings, timestamp(END))
         self.assertEqual(len(selected), 1)
         self.assertIn("ciphertrust", selected[0]["topics"])
+
+    def test_historical_cve_context_is_cited_and_bounded(self):
+        old = {"source_id": "cisa-alerts", "url": "https://www.cisa.gov/known-exploited-vulnerabilities-catalog?field_cve=CVE-2020-0001", "title": "CVE-2020-0001: PostgreSQL server", "content": "A PostgreSQL vulnerability with required remediation.", "published_at": "2020-01-01T00:00:00Z", "retrieved_at": END}
+        current = {"story_id": "current", "title": "PostgreSQL security update", "content": "PostgreSQL security update", "topics": ["database-security"], "evidence": []}
+        enriched = attach_historical_context([current], [old], timestamp(END), per_product=1)
+        self.assertEqual(enriched[0]["evidence"][0]["context_type"], "historical_cve")
+        quiet = historical_reference_stories([old], timestamp(END), limit=1)
+        self.assertEqual(len(quiet), 1)
+        self.assertEqual(quiet[0]["evidence"][0]["related_product"], "postgresql")
 
     def test_credential_and_local_urls_rejected(self):
         for url in ["http://example.org", "https://user:secret@example.org", "https://127.0.0.1/feed", "https://localhost/feed", "https://169.254.169.254/data"]:
