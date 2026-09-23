@@ -42,11 +42,13 @@ class MediaTests(unittest.TestCase):
         self.assertEqual(" ".join(chunks), text)
 
     def test_visual_scenes_align_headings_and_extract_cves(self):
-        episode = {**EPISODE, "segments": [{"heading": "Database security", "narration": "Review CVE-2026-12345 with the vendor."}]}
+        episode = {**EPISODE, "segments": [{"heading": "Database security", "narration": "Review CVE-2026-12345 with the vendor.", "source_urls": ["https://example.org/advisory"]}]}
         cues = [Cue(0, 1, episode["title"]), Cue(1, 2, episode["summary"]), Cue(2, 3, "Database security"), Cue(3, 4, episode["segments"][0]["narration"]), Cue(4, 5, episode["outro"])]
         scenes = visual_scenes(episode, cues)
         self.assertEqual(scenes[1]["start"], 2)
         self.assertEqual(scenes[1]["identifiers"], ["CVE-2026-12345"])
+        self.assertEqual(scenes[1]["label"], "DATABASE SECURITY")
+        self.assertEqual(scenes[1]["source_count"], 1)
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / "visuals.ass"
             write_visual_ass(scenes, path)

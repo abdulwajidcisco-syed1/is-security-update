@@ -119,17 +119,31 @@ def write_srt(cues, output):
     Path(output).write_text("\n".join(rows), encoding="utf-8")
 
 
+def _visual_kind(text):
+    lowered = text.casefold()
+    for words, kind in (
+        (("database", "sql", "postgres", "mysql"), "DATABASE SECURITY"),
+        (("identity", "credential", "oauth", "access"), "IDENTITY & ACCESS"),
+        (("cloud", "saas", "service"), "CLOUD & SERVICES"),
+        (("ransomware", "malware", "breach", "incident"), "THREAT ACTIVITY"),
+        (("patch", "update", "release", "version"), "PATCH & RELEASE"),
+    ):
+        if any(word in lowered for word in words):
+            return kind
+    return "SECURITY UPDATE"
+
+
 def visual_scenes(episode, cues):
     """Build evidence-safe visual cards aligned to the spoken headings."""
     if not cues:
         return []
     starts = {cue.text: cue.start for cue in cues}
-    sections = [(episode["title"], "DAILY SECURITY BRIEFING", episode.get("summary", ""))]
+    sections = [(episode["title"], "DAILY SECURITY BRIEFING", episode.get("summary", ""), [])]
     for segment in episode.get("segments", []):
-        sections.append((segment["heading"], "SECURITY UPDATE", segment.get("narration", "")))
-    sections.append((episode["outro"], "BRIEFING COMPLETE", ""))
+        sections.append((segment["heading"], _visual_kind(segment["heading"] + " " + segment.get("narration", "")), segment.get("narration", ""), segment.get("source_urls", [])))
+    sections.append((episode["outro"], "BRIEFING COMPLETE", "", []))
     scenes = []
-    for index, (heading, label, detail) in enumerate(sections):
+    for index, (heading, label, detail, sources) in enumerate(sections):
         start = starts.get(heading)
         if start is None:
             continue
@@ -140,6 +154,7 @@ def visual_scenes(episode, cues):
             "label": label,
             "heading": " ".join(heading.split())[:120],
             "identifiers": identifiers,
+            "source_count": len(set(sources)),
         })
     for index, scene in enumerate(scenes):
         scene["end"] = round(scenes[index + 1]["start"] if index + 1 < len(scenes) else cues[-1].end, 3)
@@ -170,14 +185,15 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     rows = [header]
     for scene in scenes:
         ids = "  |  ".join(scene["identifiers"])
-        rows.append(f"Dialogue: 0,{stamp(scene['start'])},{stamp(scene['end'])},Label,,0,0,0,,{safe(scene['label'] + (('  •  ' + ids) if ids else ''))}\n")
+        evidence = f"  •  {scene['source_count']} cited source" + ("s" if scene["source_count"] != 1 else "") if scene["source_count"] else ""
+        rows.append(f"Dialogue: 0,{stamp(scene['start'])},{stamp(scene['end'])},Label,,0,0,0,,{safe(scene['label'] + (('  •  ' + ids) if ids else '') + evidence)}\n")
         rows.append(f"Dialogue: 0,{stamp(scene['start'])},{stamp(scene['end'])},Card,,0,0,0,,{{\\fad(350,350)}}{safe(scene['heading'])}\n")
     Path(output).write_text("".join(rows), encoding="utf-8")
 
 
-def _run(command):
+def _run(command, timeout=900):
     try:
-        result = subprocess.run(command, check=False, capture_output=True, text=True, timeout=900)
+        result = subprocess.run(command, check=False, capture_output=True, text=True, timeout=timeout)
     except (OSError, subprocess.TimeoutExpired) as exc:
         raise MediaError("Media encoder could not be executed") from exc
     if result.returncode:
@@ -200,13 +216,14 @@ def render_media(episode, output, voice="af_heart", speed=1.0, ffmpeg="ffmpeg", 
     subtitle_path = captions.resolve().as_posix().replace(":", r"\:").replace("'", r"\'")
     visual_path = visuals.resolve().as_posix().replace(":", r"\:").replace("'", r"\'")
     filters = (
-        "[0:v]drawgrid=w=120:h=120:t=2:c=0x1e3a5f@0.35:x='mod(t*35,120)':y='mod(t*18,120)',"
-        f"drawbox=x=0:y=1048:w='iw*min(t/{max(duration, 0.001):.3f},1)':h=32:c={VISUAL_ACCENT}@0.9:t=fill[base];"
-        "[1:a]showwaves=s=1680x150:mode=line:colors=0x22d3ee@0.65:scale=sqrt[wave];"
-        "[base][wave]overlay=x=120:y=820:format=auto,"
-        f"ass='{visual_path}',subtitles='{subtitle_path}':force_style='FontSize=34,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,BorderStyle=3,Outline=1,Shadow=0,MarginV=80'[v]"
+        "[0:v]drawgrid=w=90:h=90:t=2:c=0x1e3a5f@0.35:x='mod(t*28,90)':y='mod(t*14,90)',"
+        f"drawbox=x=0:y=696:w='iw*min(t/{max(duration, 0.001):.3f},1)':h=24:c={VISUAL_ACCENT}@0.9:t=fill[base];"
+        "[1:a]showwaves=s=1120x95:mode=line:colors=0x22d3ee@0.65:scale=sqrt[wave];"
+        "[base][wave]overlay=x=80:y=540:format=auto,"
+        f"ass='{visual_path}',subtitles='{subtitle_path}':force_style='FontSize=26,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,BorderStyle=3,Outline=1,Shadow=0,MarginV=55'[v]"
     )
-    _run([ffmpeg, "-y", "-hide_banner", "-loglevel", "error", "-f", "lavfi", "-i", "color=c=0x0b1220:s=1920x1080:r=30", "-i", str(wav), "-filter_complex", filters, "-map", "[v]", "-map", "1:a", "-codec:v", "libx264", "-preset", "veryfast", "-pix_fmt", "yuv420p", "-codec:a", "aac", "-b:a", "160k", "-shortest", str(video)])
+    encode_timeout = max(900, round(duration * 1.25))
+    _run([ffmpeg, "-y", "-hide_banner", "-loglevel", "error", "-f", "lavfi", "-i", "color=c=0x0b1220:s=1280x720:r=24", "-i", str(wav), "-filter_complex", filters, "-map", "[v]", "-map", "1:a", "-codec:v", "libx264", "-preset", "ultrafast", "-crf", "24", "-pix_fmt", "yuv420p", "-codec:a", "aac", "-b:a", "160k", "-shortest", str(video)], timeout=encode_timeout)
     metadata = {"schema_version": 1, "voice": voice, "speed": speed, "duration_seconds": round(duration, 3), "caption_count": len(cues), "artifacts": {}}
     for path in (wav, mp3, captions, visuals, output / "visual_plan.json", video):
         if not path.is_file() or not path.stat().st_size:
