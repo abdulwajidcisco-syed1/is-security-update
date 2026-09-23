@@ -1,0 +1,31 @@
+name: Visual smoke preview
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install FFmpeg
+        run: sudo apt-get update && sudo apt-get install --yes ffmpeg
+      - name: Render five-second visual preview
+        run: python -m pipeline.media_smoke --output visual-smoke-preview
+      - name: Validate preview
+        run: |
+          test -s visual-smoke-preview/video.mp4
+          test -s visual-smoke-preview/captions.srt
+          test -s visual-smoke-preview/visual_plan.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: visual-smoke-preview
+          path: visual-smoke-preview/
+          retention-days: 7
+          if-no-files-found: error
