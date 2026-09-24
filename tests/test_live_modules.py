@@ -9,12 +9,27 @@ from unittest.mock import patch
 
 from pipeline.collect import CollectionError, collect_cisa_kev, collect_feed, collect_all, fetch
 from pipeline.config import Source, load_settings
-from pipeline.editorial import EditorialError, evidence_packet, generate_episode, safety_findings, validate_episode
+from pipeline.editorial import EditorialError, compact_episode, evidence_packet, generate_episode, safety_findings, validate_episode
 from pipeline.site import build_site, render, sync_existing_site
 
 ROOT = Path(__file__).resolve().parents[1]
 
 class LiveModuleTests(unittest.TestCase):
+    def test_compaction_keeps_complete_sentences(self):
+        episode = {
+            "title": "Daily briefing",
+            "summary": "Verified public updates.",
+            "segments": [
+                {"narration": "First complete sentence has useful context. Second complete sentence adds optional detail."},
+                {"narration": "Another complete sentence covers impact. A final sentence adds optional guidance."},
+            ],
+            "outro": "Review vendor guidance.",
+        }
+        compacted = compact_episode(episode, 25)
+        self.assertTrue(all(row["narration"].endswith(".") for row in compacted["segments"]))
+        text = " ".join([compacted["title"], compacted["summary"], *(row["narration"] for row in compacted["segments"]), compacted["outro"]])
+        self.assertLessEqual(len(text.split()), 25)
+
     def test_rss_normalization(self):
         source = Source("cisa-alerts", "https://www.cisa.gov/cybersecurity-advisories/all.xml", "rss", True, ("database-security",), 3, True)
         xml = b'<rss><channel><item><title>Database security update</title><link>https://www.cisa.gov/news</link><description>PostgreSQL advisory</description><pubDate>Fri, 19 Sep 2026 08:00:00 GMT</pubDate></item></channel></rss>'

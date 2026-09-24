@@ -53,7 +53,7 @@ def validate_episode(episode, claims, urls, minimum_words=0, maximum_words=0):
     return episode
 
 def compact_episode(episode, maximum_words):
-    """Deterministically remove excess narration words while retaining every cited segment."""
+    """Remove excess narration at sentence boundaries while retaining every cited segment."""
     if not maximum_words:
         return episode
     fixed = len((episode["title"] + " " + episode["summary"] + " " + episode["outro"]).split())
@@ -63,11 +63,19 @@ def compact_episode(episode, maximum_words):
         raise EditorialError("Word ceiling is too small for the required cited segments")
     remaining_budget, remaining_segments = budget, len(segments)
     for segment in segments:
-        words = segment["narration"].split()
         allocation = remaining_budget if remaining_segments == 1 else max(1, remaining_budget // remaining_segments)
-        kept = words[:allocation]
-        segment["narration"] = " ".join(kept).rstrip(",:;-") + ("." if kept and kept[-1][-1:] not in ".!?" else "")
-        remaining_budget -= len(kept)
+        sentences = re.split(r"(?<=[.!?])\s+", segment["narration"].strip())
+        kept, kept_words = [], 0
+        for sentence in sentences:
+            sentence_words = sentence.split()
+            if kept_words + len(sentence_words) > allocation:
+                break
+            kept.append(sentence)
+            kept_words += len(sentence_words)
+        if not kept:
+            raise EditorialError("Word ceiling cannot retain a complete sentence for every cited segment")
+        segment["narration"] = " ".join(kept)
+        remaining_budget -= kept_words
         remaining_segments -= 1
     return episode
 
