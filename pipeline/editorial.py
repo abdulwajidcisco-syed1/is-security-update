@@ -76,8 +76,11 @@ def _generate_episode_once(stories, model, edition, api_key=None, minimum_words=
                     detail = json.loads(exc.read(100_000)).get("error", {}).get("message", "")
                 except (ValueError, AttributeError, json.JSONDecodeError):
                     detail = ""
-                schema_rejection = exc.code == 400 and "does not match the expected schema" in detail
-                if schema_rejection and attempt < 2:
+                generation_rejection = exc.code == 400 and (
+                    "does not match the expected schema" in detail
+                    or "Failed to generate JSON" in detail
+                )
+                if generation_rejection and attempt < 2:
                     time.sleep(attempt + 1)
                     continue
                 safe_detail = re.sub(r"(?:gsk_|Bearer )[A-Za-z0-9._-]+", "[redacted]", detail)[:300]
