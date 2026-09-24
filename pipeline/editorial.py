@@ -52,6 +52,25 @@ def validate_episode(episode, claims, urls, minimum_words=0, maximum_words=0):
         raise EditorialError(f"Episode is longer than {maximum_words} words")
     return episode
 
+def compact_episode(episode, maximum_words):
+    """Deterministically remove excess narration words while retaining every cited segment."""
+    if not maximum_words:
+        return episode
+    fixed = len((episode["title"] + " " + episode["summary"] + " " + episode["outro"]).split())
+    segments = episode.get("segments", [])
+    budget = maximum_words - fixed
+    if budget < len(segments):
+        raise EditorialError("Word ceiling is too small for the required cited segments")
+    remaining_budget, remaining_segments = budget, len(segments)
+    for segment in segments:
+        words = segment["narration"].split()
+        allocation = remaining_budget if remaining_segments == 1 else max(1, remaining_budget // remaining_segments)
+        kept = words[:allocation]
+        segment["narration"] = " ".join(kept).rstrip(",:;-") + ("." if kept and kept[-1][-1:] not in ".!?" else "")
+        remaining_budget -= len(kept)
+        remaining_segments -= 1
+    return episode
+
 def schema():
     segment = {"type": "object", "additionalProperties": False, "required": ["heading", "narration", "claim_ids", "source_urls", "is_case_study"], "properties": {"heading": {"type": "string"}, "narration": {"type": "string"}, "claim_ids": {"type": "array", "minItems": 1, "items": {"type": "string"}}, "source_urls": {"type": "array", "minItems": 1, "items": {"type": "string"}}, "is_case_study": {"type": "boolean"}}}
     return {"name": "security_briefing", "strict": True, "schema": {"type": "object", "additionalProperties": False, "required": ["title", "summary", "segments", "outro"], "properties": {"title": {"type": "string"}, "summary": {"type": "string"}, "segments": {"type": "array", "items": segment}, "outro": {"type": "string"}}}}
@@ -93,6 +112,8 @@ def _generate_episode_once(stories, model, edition, api_key=None, minimum_words=
         if episode is None:
             raise EditorialError("Groq generation produced no episode")
         try:
+            if maximum_words:
+                episode = compact_episode(episode, maximum_words)
             return validate_episode(episode, claims, urls, minimum_words, maximum_words)
         except EditorialError as exc:
             if validation_attempt == 1:
