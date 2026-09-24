@@ -97,7 +97,7 @@ def _generate_episode_once(stories, model, edition, api_key=None, minimum_words=
         except EditorialError as exc:
             if validation_attempt == 1:
                 raise EditorialError("Editorial validation failed after corrective retry") from exc
-            payload["messages"].append({"role": "user", "content": "The previous draft failed evidence, safety, or minimum-length validation. Regenerate it with at least the requested minimum spoken-word count using only supplied evidence, with at least one valid claim_id and source_url per segment, and omit unsafe or unsupported material."})
+            payload["messages"].append({"role": "user", "content": f"The previous draft failed evidence, safety, or length validation. Regenerate it between {minimum_words} and {upper} spoken words using only supplied evidence, with at least one valid claim_id and source_url per segment, and omit unsafe or unsupported material."})
     raise EditorialError("Editorial validation failed")
 
 
