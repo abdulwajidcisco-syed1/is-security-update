@@ -106,6 +106,8 @@ def generate_episode(stories, model, edition, api_key=None, minimum_words=0, max
         return _generate_episode_once(stories, model, edition, api_key, 0, maximum_words)
     if not stories:
         return _generate_episode_once(stories, model, edition, api_key, 0, maximum_words)
+    if maximum_words:
+        return _generate_episode_once(stories, model, edition, api_key, minimum_words, maximum_words)
     chapter_count = min(9, len(stories))
     batches = [stories[index::chapter_count] for index in range(chapter_count)]
     chapter_minimum = (minimum_words + chapter_count - 1) // chapter_count
