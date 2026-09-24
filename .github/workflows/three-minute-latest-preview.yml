@@ -1,4 +1,4 @@
-name: Three-minute latest cybersecurity preview
+﻿name: Three-minute latest cybersecurity preview
 
 on:
   workflow_dispatch:
@@ -31,7 +31,7 @@ jobs:
       - name: Generate latest three-minute review edition
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-        run: python -m pipeline.live_preview --output three-minute-preview --media --voice af_heart --minimum-words 320 --maximum-words 430 --minimum-duration-seconds 150 --maximum-stories 3
+        run: python -m pipeline.live_preview --output three-minute-preview --media --voice af_heart --minimum-words 320 --maximum-words 380 --minimum-duration-seconds 150 --maximum-stories 3
       - name: Verify script, audio, video, captions and artifacts
         run: python -m pipeline.verify_media "three-minute-preview/$(date -u +%F)" --minimum-seconds 150 --maximum-seconds 240
       - uses: actions/upload-artifact@v4
