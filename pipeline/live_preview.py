@@ -22,6 +22,10 @@ def main():
     parser.add_argument("--model", default="openai/gpt-oss-20b")
     parser.add_argument("--media", action="store_true", help="Generate Kokoro audio, captions, and FFmpeg video")
     parser.add_argument("--voice", default="af_heart")
+    parser.add_argument("--minimum-words", type=int, default=4_000)
+    parser.add_argument("--maximum-words", type=int, default=0)
+    parser.add_argument("--minimum-duration-seconds", type=int, default=1_800)
+    parser.add_argument("--maximum-stories", type=int, default=0)
     args = parser.parse_args()
     end = timestamp(args.window_end) if args.window_end else datetime.now(timezone.utc).replace(microsecond=0)
     start, edition = end - timedelta(hours=24), end.date().isoformat()
@@ -33,7 +37,9 @@ def main():
     history = historical_reference_stories(records, end)
     existing_urls = {story["url"] for story in selected}
     selected.extend(story for story in history if story["url"] not in existing_urls)
-    episode = generate_episode(selected, args.model, edition, minimum_words=4_000)
+    if args.maximum_stories:
+        selected = selected[:args.maximum_stories]
+    episode = generate_episode(selected, args.model, edition, minimum_words=args.minimum_words, maximum_words=args.maximum_words)
     directory = args.output / edition; directory.mkdir(parents=True, exist_ok=True)
     paths = {"selected.json": selected, "quarantine.json": quarantine, "episode.json": episode}
     for name, data in paths.items(): write_json(directory / name, data)
@@ -43,7 +49,7 @@ def main():
     transcript += [episode["outro"], ""]
     (directory / "transcript.md").write_text("\n".join(transcript), encoding="utf-8")
     if args.media:
-        render_media(episode, directory, voice=args.voice, minimum_duration_seconds=1_800)
+        render_media(episode, directory, voice=args.voice, minimum_duration_seconds=args.minimum_duration_seconds)
     build_site(directory / "site", directory / "episode.json", edition, media_source=directory if args.media else None)
     manifest = {"schema_version": 1, "mode": "live_preview", "publication": "disabled", "edition": edition, "window_start": start.isoformat(), "window_end": end.isoformat(), "source_outcomes": outcomes, "raw_count": len(records), "selected_count": daily_selected_count, "context_story_count": len(selected) - daily_selected_count, "quarantined_count": len(quarantine), "selection_outcome": "selected" if daily_selected_count else ("historical_context" if selected else ("metadata_rejected" if quarantine else "no_qualifying_items")), "episode_status": episode["status"], "artifacts": {}}
     for path in directory.rglob("*"):

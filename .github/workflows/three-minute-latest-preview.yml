@@ -1,0 +1,42 @@
+name: Three-minute latest cybersecurity preview
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: three-minute-latest-preview
+  cancel-in-progress: false
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: pipeline/requirements-media.txt
+      - name: Install media dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg espeak-ng
+          python -m pip install -r pipeline/requirements-media.txt
+      - name: Generate latest three-minute review edition
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: python -m pipeline.live_preview --output three-minute-preview --media --voice af_heart --minimum-words 320 --maximum-words 380 --minimum-duration-seconds 150 --maximum-stories 3
+      - name: Verify script, audio, video, captions and artifacts
+        run: python -m pipeline.verify_media "three-minute-preview/$(date -u +%F)" --minimum-seconds 150 --maximum-seconds 240
+      - uses: actions/upload-artifact@v4
+        with:
+          name: three-minute-latest-preview
+          path: three-minute-preview/
+          retention-days: 7
+          if-no-files-found: error
