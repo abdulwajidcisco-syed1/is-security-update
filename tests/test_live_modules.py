@@ -110,11 +110,11 @@ class LiveModuleTests(unittest.TestCase):
             self.assertEqual((root / "media/2026-09-18/audio.mp3").read_bytes(), b"audio")
         with self.assertRaises(ValueError):
             sync_existing_site("http://example.org/", Path("unused"))
-    def test_generation_retries_schema_rejection(self):
+    def test_generation_retries_json_generation_rejection(self):
         stories = [{"story_id": "s1", "title": "Database update", "content": "A database update", "topics": ["database-security"], "evidence": [{"source_id": "vendor", "url": "https://example.org/update", "published_at": "2026-09-19T00:00:00+00:00", "excerpt": "A database update is available"}]}]
         _, claims, urls = evidence_packet(stories)
         episode = {"title": "Update", "summary": "Summary", "segments": [{"heading": "Advisory", "narration": "A database update is available.", "claim_ids": list(claims), "source_urls": list(urls), "is_case_study": False}], "outro": "Goodbye"}
-        error_body = BytesIO(json.dumps({"error": {"message": "Generated JSON does not match the expected schema."}}).encode())
+        error_body = BytesIO(json.dumps({"error": {"message": "Failed to generate JSON. Please adjust your prompt."}}).encode())
         rejection = HTTPError("https://api.groq.com", 400, "Bad Request", {}, error_body)
         success = BytesIO(json.dumps({"choices": [{"message": {"content": json.dumps(episode)}}]}).encode())
         with patch("pipeline.editorial.urlopen", side_effect=[rejection, success]) as request, patch("pipeline.editorial.time.sleep"):
