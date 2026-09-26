@@ -1,6 +1,6 @@
 # Integrated acceptance record
 
-Updated 2026-09-25. Evidence links should identify immutable commits, Actions runs, releases, videos, or dated pages.
+Updated 2026-09-26. Evidence links should identify immutable commits, Actions runs, releases, videos, or dated pages.
 
 | Test | State | Evidence / remaining exercise |
 |---|---|---|
@@ -16,17 +16,16 @@ Updated 2026-09-25. Evidence links should identify immutable commits, Actions ru
 | AT10 | Passed | Run 35466879235 restored the existing release checkpoint, reconciled the same release/video/playlist without duplication, redeployed Pages, and verified all destinations after a prior verifier failure. Workflow concurrency prevents overlap. |
 | AT11 | Partial | Timeouts, bounded source 429/5xx/network retries, partial coverage, and bounded Groq schema retry are tested. Quota exhaustion and operator notification receipt remain pilot exercises. |
 | AT12 | Partial | Secret scan, independent GitHub-hosted execution, 30-edition archive preservation, and same-edition assisted reconciliation pass. Operator-led recovery sign-off remains. |
-| AT13 | In progress (6/7) | The 2026-09-20 through 2026-09-25 editions published and reconciled all destinations. The day-one initial collection had partial coverage because the CISA advisory RSS returned HTTP 403 on the hosted runner; fixed-window verification run [35497501506](https://github.com/abdulwajidcisco-syed1/is-security-update/actions/runs/35497501506) confirmed CISA KEV, NVD, and Hacker News all succeed after switching to CISA's official KEV mirror. Two records were metadata-rejected and the approved no-news policy applied. The 2026-09-21 [scheduled run](https://github.com/abdulwajidcisco-syed1/is-security-update/actions/runs/35556210884) had full source coverage, one metadata rejection, and a no-news edition. Its release, private YouTube upload/playlist record, and public Pages archive/episode passed; YouTube processing was still in progress at publication. The 2026-09-22 [scheduled run](https://github.com/abdulwajidcisco-syed1/is-security-update/actions/runs/35681779601) published an eight-story approved episode with full source coverage, no quarantined records, 465.925 seconds of media, and 19 captions. Release, private YouTube upload/playlist record, and public Pages archive/episode passed. The 2026-09-23 [scheduled run](https://github.com/abdulwajidcisco-syed1/is-security-update/actions/runs/35812866056) published one approved story with full source coverage, no quarantined records, 134.675 seconds of media, and seven captions. Release, private YouTube upload/playlist record, and public Pages archive/episode passed. The 2026-09-24 scheduled run failed closed on a transient Groq JSON-generation rejection; commit `d96b3b5` added bounded retry handling and [corrective run 35966264818](https://github.com/abdulwajidcisco-syed1/is-security-update/actions/runs/35966264818) published an approved 4,657-word edition with full source coverage, no quarantine, 2,685.45 seconds of media, and 475 captions. The 2026-09-25 [scheduled run 36088844286](https://github.com/abdulwajidcisco-syed1/is-security-update/actions/runs/36088844286) published an approved 4,976-word edition with full source coverage, no quarantine, 3,013.825 seconds of media, and 527 captions. Both editions have seven checksummed Release assets, private YouTube uploads inserted into the playlist, and public archive/dated pages returning HTTP 200. Human content/media review remains. |
+| AT13 | Passed | Seven pilot editions from 2026-09-20 through 2026-09-26 are recorded in `PILOT_LOG.csv`. The final [scheduled run 36213625587](https://github.com/abdulwajidcisco-syed1/is-security-update/actions/runs/36213625587) completed with all three sources healthy, zero quarantined records, an approved 4,904-word episode, 3,039.1 seconds of media, and 536 captions. Its GitHub Release contains seven checksummed assets, private YouTube video `VMG7geKTJNk` was inserted into the playlist, and the public archive and dated episode returned HTTP 200. Day-one source failure and day-five transient Groq rejection both failed safely and have verified corrective evidence. Human playback/content approval remains tracked under AT04, AT07, AT09, AT12 and P15. |
 
 ## Release blockers
 
 - Complete human media review and YouTube post-processing playback check.
 - Exercise OAuth revocation/recovery without exposing secrets.
-- Complete seven-day pilot and operator-assisted recovery.
 
 ## Acceptance sign-off
 
 - Operator: pending
 - Business author: pending
 - Implementer: pending final AT01-AT12 review
-- Go-live recommendation: pending AT13
+- Go-live recommendation: conditional approval pending operator and business-author sign-off
